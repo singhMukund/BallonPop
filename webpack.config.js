@@ -29,7 +29,7 @@ module.exports = (env, argv) => {
       hot: true,
     },
     output: {
-      path: path.resolve(__dirname, 'dist'),
+      path: path.resolve(__dirname, 'public'),
       filename: 'bundle.js',
       clean: true, // Clean the output directory before each build
     },
