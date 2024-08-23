@@ -10,9 +10,13 @@ export class LoadingContainer extends Container{
     private loadingFillContainer !: Container;
     private loadingFillBg !: Graphics;
     private loadingFill !: Graphics;
+    
     constructor(){
         super();
         this.init();
+        this.setPosition();
+        Game.the.app.stage.on("RESIZE_THE_APP", this.setPosition, this);
+        // window.onresize = this.setPosition.bind(this);
     }
 
     private init() :void{
@@ -32,9 +36,9 @@ export class LoadingContainer extends Container{
         this.gameName = new Text("Balloon Rush", style);
 
         // Center the text in the container
-        this.gameName.anchor.set(0.5);
-        this.gameName.x = 1920 / 2 ;
-        this.gameName.y = 90;
+        // this.gameName.anchor.set(0.5);
+        // this.gameName.x = this. ;
+        // this.gameName.y = 90;
 
         this.addChild(this.gameName);
 
@@ -70,4 +74,16 @@ export class LoadingContainer extends Container{
         const introScreen = new IntroContainer();
         Game.the.app.stage.addChild(introScreen);
     }
+
+    private setPosition() :void{
+        if(this.loadingFillContainer.width > (window.innerWidth * 0.8)){
+            this.loadingFillContainer.scale.set(0.8);
+        }
+        if(this.gameName.width > (window.innerWidth * 0.7)){
+            this.gameName.scale.set(0.55);
+        }
+        this.gameName.position.set((window.innerWidth - this.gameName.width)/2, 90);
+        this.loadingFillContainer.position.set((window.innerWidth - this.loadingFillContainer.width)/2, (window.innerHeight - this.loadingFillContainer.height)*0.74);
+    }
+
 }

@@ -8,9 +8,16 @@ export class LevelPopup extends Container{
     private text !: Text;
     private button!: Text;
     private totalScore !: Text;
+    private textContainer !: Container;
     constructor() {
         super();
         this.init();
+        this.setPosition();
+        Game.the.app.stage.on("RESIZE_THE_APP", this.setPosition, this);
+    }
+
+    private setPosition() :void{
+        this.textContainer.position.set((window.innerWidth)/2,(window.innerHeight)/2)
     }
 
     private init() :void{
@@ -20,7 +27,8 @@ export class LevelPopup extends Container{
         this.popupBg.endFill();
         this.addChild(this.popupBg);
 
-
+        this.textContainer = new Container();
+        this.addChild(this.textContainer);
         const style = new TextStyle({
             fontFamily: 'Arial',
             fontSize: 36,
@@ -32,10 +40,13 @@ export class LevelPopup extends Container{
 
         // Center the text in the container
         this.text.anchor.set(0.5);
-        this.text.x = 1920 / 2;
-        this.text.y = 1080 / 2;
+        this.text.x = 0;
+        this.text.y = 0;
 
-        this.addChild(this.text);
+        this.textContainer.x = window.innerWidth / 2;
+        this.textContainer.y = window.innerHeight / 2;
+
+        this.textContainer.addChild(this.text);
 
         const buttonStyle = new TextStyle({
             fontFamily: 'Arial',
@@ -54,11 +65,11 @@ export class LevelPopup extends Container{
         this.totalScore = new Text(`Your total score is ${CommonConfig.the.getTotalScore()}`, buttonStyle);
         this.totalScore.x = this.text.x - (this.totalScore.width)/2;
         this.totalScore.y = this.text.y - 50;
-        this.addChild(this.totalScore);
+        this.textContainer.addChild(this.totalScore);
 
         this.button.on('pointerdown', this.onButtonClick.bind(this));
 
-        this.addChild(this.button);
+        this.textContainer.addChild(this.button);
 
         this.alpha = 0;
         this.y = this.y - 60

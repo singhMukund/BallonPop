@@ -20,34 +20,41 @@ export class IntroContainer extends Container {
 
     private pages: Container[] = [];
     private currentIndex: number = 0;
+    private indicatorBtn !: Container;
+    private text1!: Container;
+    private text2!: Container;
+    private text3!: Container;
 
 
     constructor() {
         super();
         this.init();
+        this.setPosition();
+        Game.the.app.stage.on("RESIZE_THE_APP", this.setPosition, this);
     }
 
     private init() :void{
        
-
+        this.indicatorBtn = new Container();
+        this.addChild(this.indicatorBtn);
         this.page1UnFilledButton = new Graphics();
         this.page1UnFilledButton.lineStyle(1, 0xffffff);
         this.page1UnFilledButton.drawCircle(0, 0, 12);
-        this.addChild(this.page1UnFilledButton);
-        this.page1UnFilledButton.position.set(840,600);
+        this.indicatorBtn.addChild(this.page1UnFilledButton);
+        this.page1UnFilledButton.position.set(-48,0);
 
         this.page2UnFilledButton = new Graphics();
         this.page2UnFilledButton.lineStyle(1, 0xffffff);
         this.page2UnFilledButton.drawCircle(0, 0, 12);
-        this.addChild(this.page2UnFilledButton);
-        this.page2UnFilledButton.position.set(970,600);
+        this.indicatorBtn.addChild(this.page2UnFilledButton);
+        this.page2UnFilledButton.position.set(0,0);
 
        
         this.page3UnFilledButton = new Graphics();
         this.page3UnFilledButton.lineStyle(1, 0xffffff);
         this.page3UnFilledButton.drawCircle(0, 0, 12);
-        this.addChild(this.page3UnFilledButton);
-        this.page3UnFilledButton.position.set(1090,600);
+        this.indicatorBtn.addChild(this.page3UnFilledButton);
+        this.page3UnFilledButton.position.set(48,0);
 
         this.initPage1();
         this.initPage2();
@@ -57,7 +64,7 @@ export class IntroContainer extends Container {
         this.page1FilledButton.beginFill(0xffffff);
         this.page1FilledButton.drawCircle(0, 0, 12);
         this.page1FilledButton.endFill();
-        this.page1FilledButton.position.set(840,600);
+        this.page1FilledButton.position.set(-24,0);
 
         this.page1.addChild(this.page1FilledButton);
 
@@ -65,7 +72,7 @@ export class IntroContainer extends Container {
         this.page2FilledButton.beginFill(0xffffff);
         this.page2FilledButton.drawCircle(0, 0, 12);
         this.page2FilledButton.endFill();
-        this.page2FilledButton.position.set(970,600);
+        this.page2FilledButton.position.set(0,0);
 
         this.page2.addChild(this.page2FilledButton);
 
@@ -73,7 +80,7 @@ export class IntroContainer extends Container {
         this.page3FilledButton.beginFill(0xffffff);
         this.page3FilledButton.drawCircle(0, 0, 12);
         this.page3FilledButton.endFill();
-        this.page3FilledButton.position.set(1090,600);
+        this.page3FilledButton.position.set(24,0);
 
         this.page3.addChild(this.page3FilledButton);
         this.pages[this.currentIndex].alpha = 1;
@@ -89,8 +96,12 @@ export class IntroContainer extends Container {
         });
 
         this.startButton = new Text('Start Game', buttonStyle);
-        this.startButton.anchor.set(0.5);
+        // this.startButton.anchor.set(0.5);
         this.startButton.position.set(Game.the.app.renderer.width / 2, 770 );
+
+        if((window.innerWidth > window.innerHeight) && (window.innerHeight === 1600)){
+            this.startButton.position.set(window.innerWidth/2 - 100, 600);
+        }
         this.startButton.interactive = true;
         this.startButton.buttonMode = true;
 
@@ -99,10 +110,32 @@ export class IntroContainer extends Container {
         this.addChild(this.startButton);
     }
 
+    private setPosition() :void{
+        if(this.text1.width > (window.innerWidth * 0.7) || this.text2.width > (window.innerWidth * 0.7) || this.text3.width > (window.innerWidth * 0.7)){
+            this.text1.scale.set(0.6);
+            this.text2.scale.set(0.6);
+            this.text3.scale.set(0.6);
+            // this.page1FilledButton.scale.set(1.2);
+            // this.page2FilledButton.scale.set(1.2);
+            // this.page3FilledButton.scale.set(1.2);
+        }
+        this.text1.position.set((window.innerWidth - this.text1.width) * 0.5,(window.innerHeight - this.text1.height)/2);
+        this.text2.position.set((window.innerWidth - this.text2.width) * 0.5,(window.innerHeight - this.text2.height)/2);
+        this.text3.position.set((window.innerWidth - this.text3.width) * 0.5,(window.innerHeight - this.text3.height)/2);
+        this.indicatorBtn.position.set((window.innerWidth - this.indicatorBtn.width)/2 + 48, (window.innerHeight - this.indicatorBtn.height)*0.7);
+        this.startButton.position.set((window.innerWidth - this.startButton.width)/2, (window.innerHeight - this.startButton.height)*0.8);
+        this.page1FilledButton.position.set(this.indicatorBtn.x - (48) + this.page1.x,this.indicatorBtn.y + this.page1.y);
+        this.page2FilledButton.position.set(this.indicatorBtn.x + this.page2.x,this.indicatorBtn.y + this.page2.y);
+        this.page3FilledButton.position.set(this.indicatorBtn.x + (48) + this.page3.x,this.indicatorBtn.y + this.page3.y);
+    }
+
    
 
     private initPage1(): void {
         this.page1 = new Container();
+        this.text1 = new Container();
+        this.page1.addChild(this.text1);
+       
 
         const style = new TextStyle({
             fontFamily: 'Arial',
@@ -122,10 +155,10 @@ Are you ready to test your reflexes and have some fun? Click the "Start Game" bu
         `;
 
         const description : Text = new Text(descriptionText, style);
-        description.anchor.set(0.5);
-        description.position.set(Game.the.app.renderer.width / 2, Game.the.app.renderer.height / 2 - 50);
+        // description.anchor.set(0.5);
+        // description.position.set(Game.the.app.renderer.width / 2, Game.the.app.renderer.height / 2 - 50);
 
-        this.page1.addChild(description);
+        this.text1.addChild(description);
 
         this.addChild(this.page1);
         this.pages.push(this.page1);
@@ -138,18 +171,20 @@ Are you ready to test your reflexes and have some fun? Click the "Start Game" bu
         gsap.to(this.pages[this.currentIndex], { alpha: 0, duration: 1 });
         this.currentIndex = (this.currentIndex + 1) % this.pages.length;
         gsap.to(this.pages[this.currentIndex], { alpha: 1, duration: 1 });
+        this.setPosition();
     }
 
     private initPage2(): void {
         this.page2 = new Container();
-
+        this.text2 = new Container();
+        this.page2.addChild(this.text2);
         const style = new TextStyle({
             fontFamily: 'Arial',
             fontSize: 24,
             fill: 'white',
             align: 'center',
             wordWrap: true,
-            wordWrapWidth: 1200
+            wordWrapWidth: 600
         });
 
         const descriptionText = `
@@ -162,10 +197,10 @@ Are you ready to test your reflexes and have some fun? Click the "Start Game" bu
         `;
 
         const description : Text = new Text(descriptionText, style);
-        description.anchor.set(0.5);
-        description.position.set(Game.the.app.renderer.width / 2, Game.the.app.renderer.height / 2 - 50);
+        // description.anchor.set(0.5);
+        // description.position.set(Game.the.app.renderer.width / 2, Game.the.app.renderer.height / 2 - 50);
 
-        this.page2.addChild(description);
+        this.text2.addChild(description);
 
        
         this.addChild(this.page2);
@@ -175,14 +210,15 @@ Are you ready to test your reflexes and have some fun? Click the "Start Game" bu
 
     private initPage3(): void {
         this.page3 = new Container();
-
+        this.text3 = new Container();
+        this.page3.addChild(this.text3);
         const style = new TextStyle({
             fontFamily: 'Arial',
             fontSize: 24,
             fill: 'white',
             align: 'center',
             wordWrap: true,
-            wordWrapWidth: 1200
+            wordWrapWidth: 600
         });
 
         const descriptionText = `
@@ -195,10 +231,10 @@ Future Aspects of the Game:
         `;
 
         const description : Text = new Text(descriptionText, style);
-        description.anchor.set(0.5);
-        description.position.set(Game.the.app.renderer.width / 2, Game.the.app.renderer.height / 2 - 50);
+        // description.anchor.set(0.5);
+        // description.position.set(Game.the.app.renderer.width / 2, Game.the.app.renderer.height / 2 - 50);
 
-        this.page3.addChild(description);
+        this.text3.addChild(description);
 
         this.addChild(this.page3);
         this.page3.alpha = 0;

@@ -118,7 +118,10 @@ export class BalloonManager {
 
     private spawnBalloon() {
         const balloon: Balloon = new Balloon(10, this.speed);
-        balloon.position.set(Math.random() * (1800 - 100) + 100, this.app.renderer.height);
+        balloon.position.set(Math.random() * ((window.innerWidth * 0.9) - 100) + 50, window.innerHeight + 50);
+        // if((window.innerWidth > window.innerHeight) && (window.innerHeight === 1600)){
+        //     balloon.position.set(Math.random() * (window.innerWidth - 100) + 100, 1600);
+        // }
         this.app.stage.addChild(balloon);
         this.balloons.push(balloon);
         balloon.on('balloonClicked', this.onBalloonClicked, this);

@@ -1,16 +1,25 @@
 import { Container, Graphics, Text, TextStyle } from "pixi.js";
 import { CommonConfig } from "../../Common/CommonConfig";
 import gsap from "gsap";
+import { Game } from "../game";
 
 export class TaskPopup extends Container{
     private popupBg !: Graphics;
     private text !: Text;
+    private textContainer !: Container;
+
     constructor() {
         super();
-        this.init();
+        // this.setPosition();
+        // Game.the.app.stage.on("RESIZE_THE_APP", this.setPosition, this);
     }
 
+    private setPosition() :void{
+        this.textContainer.position.set((window.innerWidth)/2,(window.innerHeight)/2)
+    }
     private init() :void{
+        this.textContainer = new Container();
+        this.addChild(this.textContainer);
         this.popupBg = new Graphics();
         this.popupBg.beginFill(0x000000,0.35);
         this.popupBg.drawRect(0, 0, 400,400);
