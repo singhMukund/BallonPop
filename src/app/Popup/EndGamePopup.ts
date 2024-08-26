@@ -17,12 +17,15 @@ export class EndGamePop extends Container{
     }
 
     private setPosition() :void{
-        this.textContainer.position.set((window.innerWidth)/2,(window.innerHeight)/2)
+        this.textContainer.position.set((window.innerWidth)/2,(window.innerHeight)/2);
+        if(this.textContainer.width > (window.innerWidth * 0.7)){
+            this.textContainer.scale.set(0.55);
+        }
     }
 
     private init() :void{
         this.popupBg = new Graphics();
-        this.popupBg.beginFill(0x000000,0.35);
+        this.popupBg.beginFill(0x000000,0.7);
         this.popupBg.drawRect(0, 0, 4000,4000);
         this.popupBg.endFill();
         this.addChild(this.popupBg);
@@ -69,16 +72,21 @@ export class EndGamePop extends Container{
         this.textContainer.addChild(this.button);
 
         this.alpha = 0;
-        this.y = this.y - 60
+        this.y = this.y - 60;
+        this.button.interactive = false;
+        this.button.buttonMode = false;
     }
 
     private onButtonClick() {
         // Refresh the page
         window.location.reload();
+        this.button.interactive = false;
+        this.button.buttonMode = false;
     }
 
     show(missed : boolean) :void{
         this.totalScore.text = `Your total score is ${CommonConfig.the.getTotalScore()}`;
+        this.popupBg.interactive = true;
         if(!missed){
             this.text.text = `Game Over! You didn't scored ${CommonConfig.LEVEL_01_THRESHOLD * CommonConfig.the.getLevelsNo()} in level ${CommonConfig.the.getLevelsNo()} level.`;
         }else{
@@ -87,5 +95,7 @@ export class EndGamePop extends Container{
         this.visible = true;
         this.alpha = 0;
         gsap.to(this, { alpha: 1, duration: 0.5 });
+        this.button.interactive = true;
+        this.button.buttonMode = true;
     }
 }

@@ -15,7 +15,10 @@ export class TaskPopup extends Container{
     }
 
     private setPosition() :void{
-        this.textContainer.position.set((window.innerWidth)/2,(window.innerHeight)/2)
+        this.textContainer.position.set((window.innerWidth)/2,(window.innerHeight)/2);
+        if(this.textContainer.width > (window.innerWidth * 0.7)){
+            this.textContainer.scale.set(0.55);
+        }
     }
     private init() :void{
         this.textContainer = new Container();

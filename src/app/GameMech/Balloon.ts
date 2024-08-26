@@ -18,7 +18,15 @@ export class Balloon extends Container{
         this._points = points;
         this._speed = speed;
         this.stringValueOnBalloon = textOnBalloon ? textOnBalloon : '';
-        this.initBalloon();    
+        this.initBalloon();     
+        this.setPosition();
+        Game.the.app.stage.on("RESIZE_THE_APP", this.setPosition, this);
+    }
+
+    private setPosition() :void{
+        if(window.innerHeight > window.innerWidth){
+            this.scale.set(0.7);
+        }
     }
 
     private initBalloon() :void{

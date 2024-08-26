@@ -123,6 +123,8 @@ export class BalloonManager {
         //     balloon.position.set(Math.random() * (window.innerWidth - 100) + 100, 1600);
         // }
         this.app.stage.addChild(balloon);
+        this.app.stage.setChildIndex(this.endGamePop, this.app.stage.children.length -1);
+        this.app.stage.setChildIndex(this.levelPopup, this.app.stage.children.length -1)
         this.balloons.push(balloon);
         balloon.on('balloonClicked', this.onBalloonClicked, this);
     }

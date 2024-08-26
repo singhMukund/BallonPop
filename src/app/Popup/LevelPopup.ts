@@ -3,7 +3,7 @@ import { Container, Graphics, Text, TextStyle } from "pixi.js";
 import { CommonConfig } from "../../Common/CommonConfig";
 import { Game } from "../game";
 
-export class LevelPopup extends Container{
+export class LevelPopup extends Container {
     private popupBg !: Graphics;
     private text !: Text;
     private button!: Text;
@@ -16,14 +16,17 @@ export class LevelPopup extends Container{
         Game.the.app.stage.on("RESIZE_THE_APP", this.setPosition, this);
     }
 
-    private setPosition() :void{
-        this.textContainer.position.set((window.innerWidth)/2,(window.innerHeight)/2)
+    private setPosition(): void {
+        this.textContainer.position.set((window.innerWidth) / 2, (window.innerHeight) / 2);
+        if (this.textContainer.width > (window.innerWidth * 0.7)) {
+            this.textContainer.scale.set(0.55);
+        }
     }
 
-    private init() :void{
+    private init(): void {
         this.popupBg = new Graphics();
-        this.popupBg.beginFill(0x000000,0.35);
-        this.popupBg.drawRect(0, 0, 4000,4000);
+        this.popupBg.beginFill(0x000000,0.7);
+        this.popupBg.drawRect(0, 0, 4000, 4000);
         this.popupBg.endFill();
         this.addChild(this.popupBg);
 
@@ -59,11 +62,10 @@ export class LevelPopup extends Container{
         this.button.anchor.set(0.5);
         this.button.x = this.text.x;
         this.button.y = this.text.y + 50;
-        this.button.interactive = true;
-        this.button.buttonMode = true;
+
 
         this.totalScore = new Text(`Your total score is ${CommonConfig.the.getTotalScore()}`, buttonStyle);
-        this.totalScore.x = this.text.x - (this.totalScore.width)/2;
+        this.totalScore.x = this.text.x - (this.totalScore.width) / 2;
         this.totalScore.y = this.text.y - 50;
         this.textContainer.addChild(this.totalScore);
 
@@ -72,27 +74,37 @@ export class LevelPopup extends Container{
         this.textContainer.addChild(this.button);
 
         this.alpha = 0;
-        this.y = this.y - 60
+        this.y = this.y - 60;
+        this.button.interactive = false;
+        this.button.buttonMode = false;
     }
 
     private onButtonClick() {
-       this.hide();
+        this.hide();
     }
 
-    show() :void{
+    show(): void {
         this.totalScore.text = `Your total score is ${CommonConfig.the.getTotalScore()}`;
         this.text.text = `Ready For Next Ride Level ${CommonConfig.the.getLevelsNo() + 1}`;
         this.visible = true;
         this.alpha = 0;
         gsap.to(this, { alpha: 1, duration: 0.5 });
+        this.popupBg.interactive = true;
+        this.button.interactive = true;
+        this.button.buttonMode = true;
     }
 
-    private hide() :void{
+    private hide(): void {
         this.visible = true;
         this.alpha = 1;
-        gsap.to(this, { alpha: 0, duration: 0.5 , onComplete :()=>{
-            this.visible = false;
-            Game.the.app.stage.emit("RESUME_GAME_FOR_NEXT_LEVEl");
-        }});
+        gsap.to(this, {
+            alpha: 0, duration: 0.5, onComplete: () => {
+                this.visible = false;
+                Game.the.app.stage.emit("RESUME_GAME_FOR_NEXT_LEVEl");
+                this.popupBg.interactive = false;
+                this.button.interactive = false;
+                this.button.buttonMode = false;
+            }
+        });
     }
 }

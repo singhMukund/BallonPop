@@ -94,7 +94,7 @@ export class Game {
 
   private onStartButtonClicked() :void{
     this.loadingContainer.visible =false;
-    this.balloonManager = new BalloonManager(1000);
+    this.balloonManager = new BalloonManager(900);
   }
 
   resize() {
