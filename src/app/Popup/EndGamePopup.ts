@@ -17,10 +17,12 @@ export class EndGamePop extends Container{
     }
 
     private setPosition() :void{
-        this.textContainer.position.set((window.innerWidth)/2,(window.innerHeight)/2);
         if(this.textContainer.width > (window.innerWidth * 0.7)){
-            this.textContainer.scale.set(0.55);
+            this.textContainer.scale.set(0.6);
         }
+        this.textContainer.position.set((window.innerWidth)/2,(window.innerHeight)/2);
+        this.button.y = this.text.y + 50;
+        this.totalScore.y = this.text.y - 60;
     }
 
     private init() :void{
@@ -34,9 +36,11 @@ export class EndGamePop extends Container{
         this.addChild(this.textContainer);
         const style = new TextStyle({
             fontFamily: 'Arial',
-            fontSize: 36,
+            fontSize: 24,
             fill: 'white',
-            align: 'center'
+            align: 'center',
+            wordWrap : true,
+            wordWrapWidth : 500,
         });
 
         this.text = new Text(`Game Over! You missed Total 15 balloons in total ${CommonConfig.the.getLevelsNo()} level.`, style);
