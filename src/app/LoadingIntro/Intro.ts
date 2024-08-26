@@ -24,6 +24,8 @@ export class IntroContainer extends Container {
     private text1!: Container;
     private text2!: Container;
     private text3!: Container;
+    private gameName !: Text;
+
 
 
     constructor() {
@@ -34,7 +36,14 @@ export class IntroContainer extends Container {
     }
 
     private init() :void{
-       
+        const style = new TextStyle({
+            fontFamily: 'Arial',
+            fontSize: 72,
+            fill: 'white',
+            align: 'center'
+        });
+        this.gameName = new Text("Balloon Rush", style);
+        this.addChild(this.gameName);
         this.indicatorBtn = new Container();
         this.addChild(this.indicatorBtn);
         this.page1UnFilledButton = new Graphics();
@@ -111,22 +120,33 @@ export class IntroContainer extends Container {
     }
 
     private setPosition() :void{
+        if(this.gameName.width > (window.innerWidth * 0.7)){
+            this.gameName.scale.set(0.55);
+        }
+        this.gameName.position.set((window.innerWidth - this.gameName.width)/2, (window.innerHeight - this.gameName.height) * 0.075);
+
         if(this.text1.width > (window.innerWidth * 0.7) || this.text2.width > (window.innerWidth * 0.7) || this.text3.width > (window.innerWidth * 0.7)){
             this.text1.scale.set(0.6);
             this.text2.scale.set(0.6);
             this.text3.scale.set(0.6);
-            // this.page1FilledButton.scale.set(1.2);
-            // this.page2FilledButton.scale.set(1.2);
-            // this.page3FilledButton.scale.set(1.2);
         }
-        this.text1.position.set((window.innerWidth - this.text1.width) * 0.5,(window.innerHeight - this.text1.height)/2);
-        this.text2.position.set((window.innerWidth - this.text2.width) * 0.5,(window.innerHeight - this.text2.height)/2);
-        this.text3.position.set((window.innerWidth - this.text3.width) * 0.5,(window.innerHeight - this.text3.height)/2);
-        this.indicatorBtn.position.set((window.innerWidth - this.indicatorBtn.width)/2 + 48, (window.innerHeight - this.indicatorBtn.height)*0.7);
-        this.startButton.position.set((window.innerWidth - this.startButton.width)/2, (window.innerHeight - this.startButton.height)*0.8);
+      
+        let maxheight = Math.max(this.text1.height,this.text2.height,this.text3.height);
+        this.startButton.position.set((window.innerWidth - this.startButton.width)/2, (window.innerHeight - this.startButton.height)*0.93);
+        this.indicatorBtn.position.set(this.startButton.x + this.indicatorBtn.width/2, (window.innerHeight - this.indicatorBtn.height)*0.8);
         this.page1FilledButton.position.set(this.indicatorBtn.x - (48) + this.page1.x,this.indicatorBtn.y + this.page1.y);
         this.page2FilledButton.position.set(this.indicatorBtn.x + this.page2.x,this.indicatorBtn.y + this.page2.y);
         this.page3FilledButton.position.set(this.indicatorBtn.x + (48) + this.page3.x,this.indicatorBtn.y + this.page3.y);
+        let gameTextheight = this.indicatorBtn.y - (this.gameName.y + this.gameName.height);
+        let textY = this.gameName.y + (this.gameName.height * 0.8);
+        if(this.text3.height > gameTextheight * 0.9 ){
+            this.text1.scale.set((this.text1.scale.x) * 0.9);
+            this.text2.scale.set((this.text2.scale.x) * 0.9);
+            this.text3.scale.set((this.text3.scale.x) * 0.9);
+        }
+        this.text1.position.set((window.innerWidth - this.text1.width) * 0.5,(textY + ((gameTextheight - this.text1.height) * 0.5)));
+        this.text2.position.set((window.innerWidth - this.text2.width) * 0.5,(textY + ((gameTextheight - this.text2.height) * 0.5)));
+        this.text3.position.set((window.innerWidth - this.text3.width) * 0.5,(textY + ((gameTextheight - this.text3.height)* 0.5)));
     }
 
    
@@ -143,14 +163,13 @@ export class IntroContainer extends Container {
             fill: 'white',
             align: 'center',
             wordWrap: true,
-            wordWrapWidth: 600
+            wordWrapWidth: 600,
+            lineHeight: 24,
         });
 
         const descriptionText = `
 Welcome to Balloon Pop!
-
 In this exciting game, balloons will float up from the bottom of the screen. Your goal is to pop as many balloons as you can by clicking on them. Each balloon you pop will earn you points. But be careful! If you miss 15 balloons in a row, the game will end.
-
 Are you ready to test your reflexes and have some fun? Click the "Start Game" button to begin!
         `;
 
@@ -184,7 +203,8 @@ Are you ready to test your reflexes and have some fun? Click the "Start Game" bu
             fill: 'white',
             align: 'center',
             wordWrap: true,
-            wordWrapWidth: 600
+            wordWrapWidth: 600,
+            lineHeight: 24,
         });
 
         const descriptionText = `
@@ -192,7 +212,6 @@ Here are the rules:
 1. If you miss a total of 15 balloons in any level, the game will be over.
 2. You need to score 200 points times the level count in total score to pass each level. For example, 200 points for level 1, 400 points for level 2, 600 points for level 3, and so on.
 3. The speed of the balloons will increase with every level.
-
 Are you ready to test your reflexes and have some fun? Click the "Start Game" button to begin!
         `;
 
@@ -218,7 +237,8 @@ Are you ready to test your reflexes and have some fun? Click the "Start Game" bu
             fill: 'white',
             align: 'center',
             wordWrap: true,
-            wordWrapWidth: 600
+            wordWrapWidth: 600,
+            lineHeight: 24,
         });
 
         const descriptionText = `

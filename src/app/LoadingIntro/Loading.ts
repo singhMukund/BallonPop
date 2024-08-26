@@ -5,7 +5,6 @@ import { Game } from "../game";
 
 export class LoadingContainer extends Container{
     private loadingBg !: Graphics;
-    private gameName !: Text;
 
     private loadingFillContainer !: Container;
     private loadingFillBg !: Graphics;
@@ -26,21 +25,9 @@ export class LoadingContainer extends Container{
         this.loadingBg.endFill();
         this.addChild(this.loadingBg);
 
-        const style = new TextStyle({
-            fontFamily: 'Arial',
-            fontSize: 72,
-            fill: 'white',
-            align: 'center'
-        });
+        
 
-        this.gameName = new Text("Balloon Rush", style);
-
-        // Center the text in the container
-        // this.gameName.anchor.set(0.5);
-        // this.gameName.x = this. ;
-        // this.gameName.y = 90;
-
-        this.addChild(this.gameName);
+        
 
         this.loadingFillContainer = new Container();
         this.addChild(this.loadingFillContainer);
@@ -77,13 +64,12 @@ export class LoadingContainer extends Container{
 
     private setPosition() :void{
         if(this.loadingFillContainer.width > (window.innerWidth * 0.8)){
-            this.loadingFillContainer.scale.set(0.8);
+            this.loadingFillContainer.scale.set(0.5);
         }
-        if(this.gameName.width > (window.innerWidth * 0.7)){
-            this.gameName.scale.set(0.55);
+        if(window.innerWidth > window.innerHeight && (this.loadingFillContainer.width > window.innerWidth * 0.5)){
+            this.loadingFillContainer.scale.set(0.5);
         }
-        this.gameName.position.set((window.innerWidth - this.gameName.width)/2, 90);
-        this.loadingFillContainer.position.set((window.innerWidth - this.loadingFillContainer.width)/2, (window.innerHeight - this.loadingFillContainer.height)*0.74);
+        this.loadingFillContainer.position.set((window.innerWidth - this.loadingFillContainer.width)/2, (window.innerHeight - this.loadingFillContainer.height)*0.86);
     }
 
 }
