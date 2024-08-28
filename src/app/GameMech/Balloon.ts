@@ -11,12 +11,16 @@ export class Balloon extends Container{
     private _scoreText_ !: Text;
     private textOnBalloon !:Text;
     private stringValueOnBalloon : string;
+    private color_code : string[] = ['blue','green','orange','pink','red','yellow'];
+    private randomColorCode : string = "";
+
 
 
     constructor(points: number, speed: number, textOnBalloon ?: string) {
         super();
         this._points = points;
         this._speed = speed;
+
         this.stringValueOnBalloon = textOnBalloon ? textOnBalloon : '';
         this.initBalloon();     
         this.setPosition();
@@ -24,14 +28,14 @@ export class Balloon extends Container{
     }
 
     private setPosition() :void{
-        if(window.innerHeight > window.innerWidth){
+        if(window.innerHeight > window.innerWidth &&  this){
             this.scale.set(0.7);
         }
     }
 
     private initBalloon() :void{
-        
-        this.balloon = new Sprite(Game.the.app.loader.resources['balloon'].texture);
+        this.randomColorCode = CommonConfig.the.getRandomBalloon();
+        this.balloon = new Sprite(Game.the.app.loader.resources[`balloon_${this.randomColorCode}`].texture);
         this.addChild(this.balloon);
         // this.balloon.anchor.set(0.5); 
         // this.balloon.position.set(this.balloon.width, this.balloon.height) // Center the symbol
@@ -90,6 +94,10 @@ export class Balloon extends Container{
             }
         }else{
             this._points = 10;
+        }
+        if(this.randomColorCode === "red"){
+            let randomScore : number[] = [40,-30];
+            this._points = randomScore[Math.floor(Math.random() * randomScore.length)];
         }
     }
 

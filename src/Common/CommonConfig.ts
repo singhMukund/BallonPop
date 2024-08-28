@@ -15,6 +15,8 @@ export class CommonConfig {
     public currentSubTaskIndex : number = 0;
     public currentTaskIndex : number = 0;
     public randomValue : string = "";
+    private colorCodes : string[] = ['blue', 'green', 'orange', 'pink', 'red', 'yellow'];
+    private balloonCount : number = 0;
 
     static get the(): CommonConfig {
         if (!CommonConfig._the) {
@@ -27,11 +29,29 @@ export class CommonConfig {
 
     constructor() {
         if (CommonConfig._the == null) CommonConfig._the = this;
+        this.balloonCount = 0;
     }
 
     public setPauseForNextLevel(value : boolean) :void{
        this.pauseForNextLevel = value;
     }
+
+    getRandomBalloon() {
+        this.balloonCount++;
+
+        if (this.balloonCount >= 10 && this.balloonCount <= 15) {
+            const isMysteryBalloon = Math.random() < 0.5; // 50% chance to be the mystery balloon
+            if (isMysteryBalloon) {
+                this.balloonCount = 0; // Reset the counter after red balloon appears
+                return 'red';
+            }
+        }
+
+        const nonRedColors = this.colorCodes.filter(color => color !== 'red');
+        const randomIndex = Math.floor(Math.random() * nonRedColors.length);
+        return nonRedColors[randomIndex];
+    }
+
 
     public getPauseForNextLevel() :boolean{
         return this.pauseForNextLevel;

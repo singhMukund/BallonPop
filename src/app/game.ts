@@ -4,6 +4,7 @@ import { CommonConfig } from '../Common/CommonConfig';
 import { Balloon } from './GameMech/Balloon';
 import { BalloonManager } from './GameMech/BalloonManager';
 import { LoadingContainer } from './LoadingIntro/Loading';
+import { Background } from './Background/Background';
 
 
 export class Game {
@@ -51,7 +52,13 @@ export class Game {
   }
 
   private loadImages() {
-    this.loader.add('balloon', './assets/StaticImage/balloon.png');
+    this.loader.add('balloon_blue', './assets/StaticImage/balloon_blue.png');
+    this.loader.add('balloon_green', './assets/StaticImage/balloon_green.png');
+    this.loader.add('balloon_orange', './assets/StaticImage/balloon_orange.png');
+    this.loader.add('balloon_pink', './assets/StaticImage/balloon_pink.png');
+    this.loader.add('balloon_red', './assets/StaticImage/balloon_red.png');
+    this.loader.add('balloon_yellow', './assets/StaticImage/balloon_yellow.png');
+
 
     // @ts-ignore
     const loadAssets = () => {
@@ -93,6 +100,7 @@ export class Game {
   }
 
   private onStartButtonClicked() :void{
+    this.gameContainer.addChild(new Background());
     this.loadingContainer.visible =false;
     this.balloonManager = new BalloonManager(900);
   }

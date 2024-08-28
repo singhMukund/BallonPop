@@ -25,15 +25,15 @@ export class TimerContainer extends Container{
         }else{
             this.textContainer.scale.set(1);
         }
-        this.textContainer.position.set((window.innerWidth - this.textContainer.width)/2 - 7,10);
+        this.textContainer.position.set((window.innerWidth - this.textContainer.width)/2 + 12,20);
     }
 
     private init() :void{
         this.textContainer = new Container();
         this.addChild(this.textContainer);
         this.bg = new Graphics();
-        this.bg.beginFill(0x000000,0.6);
-        this.bg.drawRoundedRect(0, 0, 240,80,8);
+        this.bg.beginFill(0x2786e8,1);
+        this.bg.drawRoundedRect(0, 0, 160,55,8);
         this.bg.endFill();
         // this.position.set(1920/2 - 120, 10);
         this.textContainer.addChild(this.bg);
@@ -41,7 +41,7 @@ export class TimerContainer extends Container{
             fontFamily: 'Arial',
             fontSize: 24,
             fill: 'white',
-            align: 'center'
+            align: 'center',
         });
         
         this.timerText = new Text(`Timing : ${3.00}.00`, buttonStyle);
