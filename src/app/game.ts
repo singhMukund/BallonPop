@@ -27,7 +27,7 @@ export class Game {
   constructor() {
     if (Game._the == null) Game._the = this;
     this.app = new Application({
-      backgroundColor: 0x7F88FD,
+      // backgroundColor: 0x7F88FD,
       width: window.innerWidth,
       height: window.innerHeight,
       // resolution : 0.985,
@@ -52,12 +52,32 @@ export class Game {
   }
 
   private loadImages() {
+    this.loader.add('game_bg', './assets/StaticImage/BG_gradient.png');
     this.loader.add('balloon_blue', './assets/StaticImage/balloon_blue.png');
     this.loader.add('balloon_green', './assets/StaticImage/balloon_green.png');
     this.loader.add('balloon_orange', './assets/StaticImage/balloon_orange.png');
     this.loader.add('balloon_pink', './assets/StaticImage/balloon_pink.png');
     this.loader.add('balloon_red', './assets/StaticImage/balloon_red.png');
-    this.loader.add('balloon_yellow', './assets/StaticImage/balloon_yellow.png');
+    this.loader.add('balloon_black', './assets/StaticImage/balloon_black.png');
+    this.loader.add('balloon_blackies', './assets/StaticImage/balloon_blackies.png');
+    this.loader.add('balloon_mimic', './assets/StaticImage/balloon_mimic.png');
+    this.loader.add('balloon_purple', './assets/StaticImage/balloon_purple.png');
+    this.loader.add('bg_hexa', './assets/StaticImage/hexa.png');
+    this.loader.add('pop_up', './assets/StaticImage/pop_up.png');
+    this.loader.add('bg_rectangle', './assets/StaticImage/rectangle_btn.png');
+
+    this.loader.add('BurstAnim_frame_01', './assets/StaticImage/BurstAnimaton/frame_01.png');
+    this.loader.add('BurstAnim_frame_02', './assets/StaticImage/BurstAnimaton/frame_02.png');
+    this.loader.add('BurstAnim_frame_03', './assets/StaticImage/BurstAnimaton/frame_03.png');
+    this.loader.add('BurstAnim_frame_04', './assets/StaticImage/BurstAnimaton/frame_04.png');
+    this.loader.add('BurstAnim_frame_05', './assets/StaticImage/BurstAnimaton/frame_05.png');
+    this.loader.add('BurstAnim_frame_06', './assets/StaticImage/BurstAnimaton/frame_06.png');
+    this.loader.add('BurstAnim_frame_07', './assets/StaticImage/BurstAnimaton/frame_07.png');
+
+    this.loader.add('BurstSound', './assets/audio/ballon_burst.wav');
+    this.loader.add('oops_Sound', './assets/audio/oops_.ogg')
+
+
 
 
     // @ts-ignore

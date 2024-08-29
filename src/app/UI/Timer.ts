@@ -1,9 +1,9 @@
-import { Container, Graphics, Text, TextStyle, Ticker } from "pixi.js";
+import { Container, Graphics, Sprite, Text, TextStyle, Ticker } from "pixi.js";
 import { CommonConfig } from "../../Common/CommonConfig";
 import { Game } from "../game";
 
 export class TimerContainer extends Container{
-    private bg! : Graphics;
+    private bg! : Sprite;
     private timerText !: Text;
     private elapsedTime: number = 0;
     private lastTime: number = 0;
@@ -25,16 +25,16 @@ export class TimerContainer extends Container{
         }else{
             this.textContainer.scale.set(1);
         }
-        this.textContainer.position.set((window.innerWidth - this.textContainer.width)/2 + 12,20);
+        this.textContainer.position.set((window.innerWidth - this.textContainer.width)/2 +5,20);
     }
 
     private init() :void{
         this.textContainer = new Container();
         this.addChild(this.textContainer);
-        this.bg = new Graphics();
-        this.bg.beginFill(0x2786e8,1);
-        this.bg.drawRoundedRect(0, 0, 160,55,8);
-        this.bg.endFill();
+        this.bg = new Sprite(Game.the.app.loader.resources['bg_rectangle'].texture);
+        // this.bg.beginFill(0x2786e8,1);
+        // this.bg.drawRoundedRect(0, 0, 160,55,8);
+        // this.bg.endFill();
         // this.position.set(1920/2 - 120, 10);
         this.textContainer.addChild(this.bg);
         const buttonStyle = new TextStyle({
@@ -64,5 +64,6 @@ export class TimerContainer extends Container{
             return
         }
         this.timerText.text = `Time: ${this.lastTime.toFixed(2)}s`;
+        this.timerText.x = (this.bg.width - this.timerText.width)/2;
     }
 }

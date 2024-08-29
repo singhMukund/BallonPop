@@ -1,9 +1,9 @@
-import { Container, Graphics, Text, TextStyle } from "pixi.js";
+import { Container, Graphics, Sprite, Text, TextStyle } from "pixi.js";
 import { CommonConfig } from "../../Common/CommonConfig";
 import { Game } from "../game";
 
 export class Scorecard extends Container{
-    private bg! : Graphics;
+    private bg! : Sprite;
     private scoreText !: Text;
     private textContainer !: Container;
     constructor(){
@@ -22,16 +22,16 @@ export class Scorecard extends Container{
         }else{
             this.textContainer.scale.set(1);
         }
-        this.textContainer.position.set(5,10);
+        this.textContainer.position.set(3,10);
     }
 
     private init() :void{
         this.textContainer = new Container();
         this.addChild(this.textContainer);
-        this.bg = new Graphics();
-        this.bg.beginFill(0x2786e8,1);
-        this.bg.drawRoundedRect(0, 0, 160,55,8);
-        this.bg.endFill();
+        this.bg = new Sprite(Game.the.app.loader.resources['bg_rectangle'].texture);
+        // this.bg.beginFill(0x2786e8,1);
+        // this.bg.drawRoundedRect(0, 0, 160,55,8);
+        // this.bg.endFill();
         this.position.set(0, 10);
         this.textContainer.addChild(this.bg);
 
