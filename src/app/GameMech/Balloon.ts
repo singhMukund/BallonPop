@@ -17,6 +17,7 @@ export class Balloon extends Container {
     private burstAnimation !: AnimatedSprite;
     private ballonAndAnimContainer !: Container;
     private clickCount: number = 0
+    private windSpeed : number = 1;
 
 
 
@@ -32,7 +33,10 @@ export class Balloon extends Container {
     }
 
     private setPosition(): void {
-        if (window.innerHeight > window.innerWidth && this) {
+        if(!this || !this.scale || this._destroyed_){
+            return
+        }
+        if (!this._destroyed_ && window.innerHeight > window.innerWidth && this && this.balloon) {
             this.scale.set(0.7);
         }
     }
@@ -73,8 +77,6 @@ export class Balloon extends Container {
     }
 
     private createBurstAnim(): void {
-        sound.add('BurstSound', './assets/audio/ballon_burst.ogg');
-        sound.add('oops_Sound', './assets/audio/oops_.ogg')
         const frames: Texture[] = [];
         for (let i = 1; i <= 7; i++) {
             frames.push(Game.the.app.loader.resources[`BurstAnim_frame_0${i}`].texture);
@@ -90,11 +92,11 @@ export class Balloon extends Container {
 
 
     private onBalloonClicked() {
-        if (this.clickCount === 0 && this.randomColorCode === "mimic") {
+        if (this.clickCount === 0 && this.randomColorCode === "golden") {
             this.scaleUp();
-        } else if (this.clickCount === 0 && this.randomColorCode !== "mimic") {
+        } else if (this.clickCount === 0 && this.randomColorCode !== "golden") {
             this.destroyBalloonCalled();
-        } else if (this.clickCount === 1 && this.randomColorCode === "mimic") {
+        } else if (this.clickCount === 1 && this.randomColorCode === "golden") {
             this.destroyBalloonCalled();
         } else {
             return
@@ -110,7 +112,7 @@ export class Balloon extends Container {
             finalScore = 1.2
         }
         gsap.to(this.scale, { x : finalScore,y : finalScore, duration: 0.5});
-        sound.play('oops_Sound');
+        // sound.play('oops_Sound');
     }
 
     private destroyBalloonCalled(): void {
@@ -123,7 +125,9 @@ export class Balloon extends Container {
         this.destroyBalloon();
         this.burstAnimation.visible = true;
         this.burstAnimation.play();
-        sound.play('BurstSound');
+        if(sound.exists('BurstSound')){
+            sound.play('BurstSound');      
+        }
     }
 
     private destroyBalloon() {
@@ -149,7 +153,7 @@ export class Balloon extends Container {
         } else {
             this._points = 10;
         }
-        if (this.randomColorCode === "mimic") {
+        if (this.randomColorCode === "golden") {
             let randomScore: number[] = [40, -30];
             this._points = randomScore[Math.floor(Math.random() * randomScore.length)];
             if(this._points === -30){
@@ -193,6 +197,9 @@ export class Balloon extends Container {
         }
         if (!this._destroyed_) {
             this.y -= this._speed * delta;
+            // if(this.y < 2*(window.innerHeight/3)){
+            //     this.x -= this.windSpeed * delta
+            // }
             if (this.y + this.height < 0) {
                 CommonConfig.the.setMissedBalloons(1);
                 this.completeDestroy();

@@ -107,6 +107,7 @@ export class LevelPopup extends Container {
     }
 
     show(): void {
+        Game.the.app.stage.emit("STOP_BG_SOUND");
         this.totalScore.text = `Your total score is ${CommonConfig.the.getTotalScore()}`;
         this.text.text = `Ready For Next Ride Level ${CommonConfig.the.getLevelsNo() + 1}`;
         this.visible = true;
@@ -127,6 +128,7 @@ export class LevelPopup extends Container {
                 this.popupBg.interactive = false;
                 this.buttonBg.interactive = false;
                 this.buttonBg.buttonMode = false;
+                Game.the.app.stage.emit("PLAY_BG_SOUND");
             }
         });
     }

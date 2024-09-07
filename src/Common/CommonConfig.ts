@@ -15,7 +15,7 @@ export class CommonConfig {
     public currentSubTaskIndex : number = 0;
     public currentTaskIndex : number = 0;
     public randomValue : string = "";
-    private colorCodes : string[] = ['blue', 'green', 'orange', 'pink', 'mimic','purple','black','blackies'];
+    private colorCodes : string[] = ['blue', 'green', 'orange', 'pink', 'golden','purple','black','blackies'];
     private balloonCount : number = 0;
 
     static get the(): CommonConfig {
@@ -43,11 +43,11 @@ export class CommonConfig {
             const isMysteryBalloon = Math.random() < 0.5; // 50% chance to be the mystery balloon
             if (isMysteryBalloon) {
                 this.balloonCount = 0; // Reset the counter after red balloon appears
-                return 'mimic';
+                return 'golden';
             }
         }
 
-        const nonRedColors = this.colorCodes.filter(color => color !== 'mimic');
+        const nonRedColors = this.colorCodes.filter(color => color !== 'golden');
         const randomIndex = Math.floor(Math.random() * nonRedColors.length);
         return nonRedColors[randomIndex];
     }

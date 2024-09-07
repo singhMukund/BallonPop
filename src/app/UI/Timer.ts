@@ -25,13 +25,14 @@ export class TimerContainer extends Container{
         }else{
             this.textContainer.scale.set(1);
         }
-        this.textContainer.position.set((window.innerWidth - this.textContainer.width)/2 +5,20);
+        this.textContainer.position.set((window.innerWidth - this.textContainer.width)/2 +20,20);
     }
 
     private init() :void{
         this.textContainer = new Container();
         this.addChild(this.textContainer);
         this.bg = new Sprite(Game.the.app.loader.resources['bg_rectangle'].texture);
+        this.bg.scale.set(0.8);
         // this.bg.beginFill(0x2786e8,1);
         // this.bg.drawRoundedRect(0, 0, 160,55,8);
         // this.bg.endFill();

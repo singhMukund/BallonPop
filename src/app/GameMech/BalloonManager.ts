@@ -8,6 +8,7 @@ import { Scorecard } from "../UI/Scorecard";
 import { Levelcard } from "../UI/LevelCount";
 import { LevelPopup } from "../Popup/LevelPopup";
 import { TaskPopup } from "../Popup/TaskPopup";
+import { SoundBtn } from "../UI/SoundBtn";
 
 export class BalloonManager {
     private ticker: Ticker;
@@ -26,6 +27,7 @@ export class BalloonManager {
     private pauseForNextLevel: boolean = false;
     private speed: number = 2;
     private taskpopup !: TaskPopup;
+    private soundBtn !: SoundBtn;
 
     constructor(spawnInterval: number) {
         this.app = Game.the.app;
@@ -41,6 +43,8 @@ export class BalloonManager {
         this.app.stage.addChild(this.levelNo);
         this.levelPopup = new LevelPopup();
         this.app.stage.addChild(this.levelPopup);
+        this.soundBtn = new SoundBtn();
+        this.app.stage.addChild(this.soundBtn);
         this.taskpopup = new TaskPopup();
         this.app.stage.addChild(this.taskpopup);
         this.ticker.add(this.update, this);
@@ -124,7 +128,8 @@ export class BalloonManager {
         // }
         this.app.stage.addChild(balloon);
         this.app.stage.setChildIndex(this.endGamePop, this.app.stage.children.length -1);
-        this.app.stage.setChildIndex(this.levelPopup, this.app.stage.children.length -1)
+        this.app.stage.setChildIndex(this.levelPopup, this.app.stage.children.length -1);
+        this.app.stage.setChildIndex(this.soundBtn, this.app.stage.children.length -1);
         this.balloons.push(balloon);
         balloon.on('balloonClicked', this.onBalloonClicked, this);
     }

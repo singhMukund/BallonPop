@@ -104,6 +104,7 @@ export class EndGamePop extends Container{
     }
 
     show(missed : boolean) :void{
+        Game.the.app.stage.emit("STOP_BG_SOUND");
         this.totalScore.text = `Your total score is ${CommonConfig.the.getTotalScore()}`;
         this.popupBg.interactive = true;
         if(!missed){

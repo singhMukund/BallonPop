@@ -33,6 +33,7 @@ export class Scorecard extends Container{
         // this.bg.drawRoundedRect(0, 0, 160,55,8);
         // this.bg.endFill();
         this.position.set(0, 10);
+        this.bg.scale.set(0.8);
         this.textContainer.addChild(this.bg);
 
         const buttonStyle = new TextStyle({

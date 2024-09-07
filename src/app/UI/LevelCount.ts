@@ -18,12 +18,12 @@ export class Levelcard extends Container{
         let w = (window.innerWidth -30)/3;
         scale = w / this.textContainer.width ;
         if(this.textContainer.width * 3 > (window.innerWidth - 30)){
-            this.textContainer.scale.set(scale * 0.9);
+            this.textContainer.scale.set(scale * 0.75);
         }else{
-            this.textContainer.scale.set(1);
+            this.textContainer.scale.set(0.75);
         }
         let x = (window.innerWidth) - (this.textContainer.width + 3);
-        this.textContainer.position.set(x,0);
+        this.textContainer.position.set(x,10);
     }
 
     private init() :void{
@@ -31,6 +31,7 @@ export class Levelcard extends Container{
         this.addChild(this.textContainer);
 
         this.bg = new Sprite(Game.the.app.loader.resources['bg_hexa'].texture);
+        this.bg.scale.set(0.5);
         // this.bg.beginFill(0x2786e8,1);
         // this.bg.drawPolygon([-50,-45,
         //     0,-65,

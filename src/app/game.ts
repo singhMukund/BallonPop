@@ -5,6 +5,11 @@ import { Balloon } from './GameMech/Balloon';
 import { BalloonManager } from './GameMech/BalloonManager';
 import { LoadingContainer } from './LoadingIntro/Loading';
 import { Background } from './Background/Background';
+// import { TelegramLoginParsing } from './TelegramLogin/TelegramLoginParsing';
+// import { TelegramLogInBtn } from './TelegramLogin/TelegramLogInBtn';
+import sound from "pixi-sound";
+import { TelegramLoginParsing } from './TelegramLogin/TelegramLoginParsing';
+import { TelegramLogInBtn } from './TelegramLogin/TelegramLogInBtn';
 
 
 export class Game {
@@ -31,7 +36,7 @@ export class Game {
       width: window.innerWidth,
       height: window.innerHeight,
       // resolution : 0.985,
-      resizeTo : window ,
+      resizeTo: window,
       autoDensity: true,
     });
     const pixiContainer = document.getElementById('pixi-container');
@@ -42,7 +47,7 @@ export class Game {
   }
 
   init(): void {
-   
+
     this.gameContainer = new Container();
     this.app.stage.addChild(this.gameContainer);
     this.loader = this.app.loader;
@@ -60,11 +65,17 @@ export class Game {
     this.loader.add('balloon_red', './assets/StaticImage/balloon_red.png');
     this.loader.add('balloon_black', './assets/StaticImage/balloon_black.png');
     this.loader.add('balloon_blackies', './assets/StaticImage/balloon_blackies.png');
+    this.loader.add('balloon_golden', './assets/StaticImage/golden_baloon.png');
     this.loader.add('balloon_mimic', './assets/StaticImage/balloon_mimic.png');
     this.loader.add('balloon_purple', './assets/StaticImage/balloon_purple.png');
     this.loader.add('bg_hexa', './assets/StaticImage/hexa.png');
     this.loader.add('pop_up', './assets/StaticImage/pop_up.png');
     this.loader.add('bg_rectangle', './assets/StaticImage/rectangle_btn.png');
+    this.loader.add('soundOnBtn', './assets/StaticImage/sound_on.png');
+    this.loader.add('soundOffBtn', './assets/StaticImage/sound_off.png');
+    this.loader.add('Ballons_img', './assets/StaticImage/Ballons_img.png');
+    this.loader.add('Play_btn', './assets/StaticImage/Play_btn.png');
+
 
     this.loader.add('BurstAnim_frame_01', './assets/StaticImage/BurstAnimaton/frame_01.png');
     this.loader.add('BurstAnim_frame_02', './assets/StaticImage/BurstAnimaton/frame_02.png');
@@ -74,8 +85,16 @@ export class Game {
     this.loader.add('BurstAnim_frame_06', './assets/StaticImage/BurstAnimaton/frame_06.png');
     this.loader.add('BurstAnim_frame_07', './assets/StaticImage/BurstAnimaton/frame_07.png');
 
-    this.loader.add('BurstSound', './assets/audio/ballon_burst.wav');
-    this.loader.add('oops_Sound', './assets/audio/oops_.ogg')
+    // this.loader.add('BurstSound', './assets/audio/ballon_burst.wav');
+    // this.loader.add('oops_Sound', './assets/audio/oops_.ogg')
+    if (this.isIOS()) {
+      sound.add('BurstSound', './assets/audio/ballon_burst.m4a');
+      sound.add('BgSound', './assets/audio/bg_sound.m4a');
+    } else {
+      sound.add('BurstSound', './assets/audio/ballon_burst.ogg');
+      sound.add('BgSound', './assets/audio/bg_sound.m4a');
+    }
+    // sound.add('oops_Sound', './assets/audio/oops_.ogg');
 
 
 
@@ -103,6 +122,11 @@ export class Game {
       });
   }
 
+  isIOS(): boolean {
+    const audio = document.createElement('audio');
+    return audio.canPlayType('audio/ogg; codecs="vorbis"') === '';
+  }
+
 
 
   private loadAssetsAndInitialize() {
@@ -112,17 +136,40 @@ export class Game {
 
   private onLoadComplete() {
     new CommonConfig();
+    this.gameContainer.addChild(new Background());
     this.loadingContainer = new LoadingContainer();
     this.app.stage.addChild(this.loadingContainer);
     this.loadingContainer.startLoading();
     this.app.stage.on("START_BUTTON_CLICKED", this.onStartButtonClicked, this);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        if (!CommonConfig.the.getPauseForNextLevel()) {
+          CommonConfig.the.setPauseForNextLevel(true);
+          Game.the.app.stage.emit("STOP_BG_SOUND");
+          return;
+        }
+      } else {
+        if (CommonConfig.the.getPauseForNextLevel()) {
+          CommonConfig.the.setPauseForNextLevel(false);
+          Game.the.app.stage.emit("PLAY_BG_SOUND");
+          return;
+        }
+      }
+    });
+
     // 
   }
 
-  private onStartButtonClicked() :void{
-    this.gameContainer.addChild(new Background());
-    this.loadingContainer.visible =false;
+  private onStartButtonClicked(): void {
+    this.loadingContainer.visible = false;
     this.balloonManager = new BalloonManager(900);
+    const TELEGRAM_BOT_TOKEN = '7132134647:AAHj27DA9kHD_2cFANCo-dumSCA-nGm-E3M';
+    const telegramLogin = new TelegramLoginParsing(TELEGRAM_BOT_TOKEN);
+    const loginButton = new TelegramLogInBtn(telegramLogin);
+    loginButton.position.set(300,400);
+    this.gameContainer.addChild(loginButton);
+    // console.log(window.onTelegramAuth);
   }
 
   resize() {
