@@ -20,10 +20,10 @@ export class LevelPopup extends Container {
     }
 
     private setPosition(): void {
-        if (this.popupContainer.width > (window.innerWidth * 0.7)) {
+        if (this.popupContainer.width > (window.innerWidth * 0.7) || !CommonConfig.the.isDesktop()) {
             this.popupContainer.scale.set(0.55);
         }
-        this.popupContainer.position.set((window.innerWidth - this.popupContainer.width) / 2, (window.innerHeight - this.popupContainer.height) / 2);
+        this.popupContainer.position.set((window.innerWidth - this.popupContainer.width) / 2, (window.innerHeight - this.popupContainer.height) * 0.55);
     }
 
     private init(): void {

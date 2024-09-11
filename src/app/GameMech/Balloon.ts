@@ -3,6 +3,7 @@ import { Game } from "../game";
 import { CommonConfig } from "../../Common/CommonConfig";
 import gsap from "gsap";
 import sound from "pixi-sound";
+import MobileDetect from "mobile-detect";
 
 export class Balloon extends Container {
     private balloon!: Sprite;
@@ -18,6 +19,7 @@ export class Balloon extends Container {
     private ballonAndAnimContainer !: Container;
     private clickCount: number = 0
     private windSpeed : number = 1;
+    private direction : string = "leftToright" //''rightToleft
 
 
 
@@ -33,13 +35,14 @@ export class Balloon extends Container {
     }
 
     private setPosition(): void {
-        if(!this || !this.scale || this._destroyed_){
+        if(!this || this._destroyed_){
             return
         }
-        if (!this._destroyed_ && window.innerHeight > window.innerWidth && this && this.balloon) {
+        if (!this._destroyed_ && (window.innerHeight > window.innerWidth || !CommonConfig.the.isDesktop()) && this && this.balloon) {
             this.scale.set(0.7);
         }
-    }
+    } 
+    
 
     private initBalloon(): void {
         this.ballonAndAnimContainer = new Container();
@@ -197,6 +200,23 @@ export class Balloon extends Container {
         }
         if (!this._destroyed_) {
             this.y -= this._speed * delta;
+            if(CommonConfig.the.isPortraitmobile()){
+                if((this.x > (window.innerWidth * 0.25) + (this.balloon.width) || this.direction === "rightToleft") && !(this.x < (window.innerWidth * 0.5) - (this.balloon.width))){
+                    this.x -= this.windSpeed * delta;
+                    this.direction = "rightToleft"
+                }else if((this.x < (window.innerWidth * 0.5) - (this.balloon.width) || this.direction === "leftToright") && !(this.x > (window.innerWidth * 0.25) + (this.balloon.width))){
+                    this.x += this.windSpeed * delta;
+                    this.direction = "leftToright"
+                }
+            }else{
+                if((this.x > (window.innerWidth * 0.5) + (this.balloon.width) || this.direction === "rightToleft") && !(this.x < (window.innerWidth * 0.5) - (this.balloon.width))){
+                    this.x -= this.windSpeed * delta;
+                    this.direction = "rightToleft"
+                }else if((this.x < (window.innerWidth * 0.5) - (this.balloon.width) || this.direction === "leftToright") && !(this.x > (window.innerWidth * 0.5) + (this.balloon.width))){
+                    this.x += this.windSpeed * delta;
+                    this.direction = "leftToright"
+                }
+            }
             // if(this.y < 2*(window.innerHeight/3)){
             //     this.x -= this.windSpeed * delta
             // }

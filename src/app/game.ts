@@ -10,6 +10,7 @@ import { Background } from './Background/Background';
 import sound from "pixi-sound";
 import { TelegramLoginParsing } from './TelegramLogin/TelegramLoginParsing';
 import { TelegramLogInBtn } from './TelegramLogin/TelegramLogInBtn';
+import { LoadingScreenTest } from './LoadingIntro/LoadingScreenTest';
 
 
 export class Game {
@@ -85,6 +86,14 @@ export class Game {
     this.loader.add('BurstAnim_frame_06', './assets/StaticImage/BurstAnimaton/frame_06.png');
     this.loader.add('BurstAnim_frame_07', './assets/StaticImage/BurstAnimaton/frame_07.png');
 
+    let loadingPath: string = './assets/StaticImage/loading_screen/';
+    this.loader.add('Loading_Screen_Background', `${loadingPath}Loading_Screen_Background.png`);
+    this.loader.add('Game_Logo_loading', `${loadingPath}Game_Logo_loading.png`);
+    this.loader.add('Loading_text', `${loadingPath}Loading_text.png`);
+    this.loader.add('Loading_bar_empty_1', `${loadingPath}Loading_bar_empty_1.png`);
+    this.loader.add('Loading_bar_design_3', `${loadingPath}Loading_bar_design_3.png`);
+    this.loader.add('Loading_bar_fill_2', `${loadingPath}Loading_bar_fill_2.png`);
+
     // this.loader.add('BurstSound', './assets/audio/ballon_burst.wav');
     // this.loader.add('oops_Sound', './assets/audio/oops_.ogg')
     if (this.isIOS()) {
@@ -140,6 +149,7 @@ export class Game {
     this.loadingContainer = new LoadingContainer();
     this.app.stage.addChild(this.loadingContainer);
     this.loadingContainer.startLoading();
+    // this.gameContainer.addChild(new LoadingScreenTest());
     this.app.stage.on("START_BUTTON_CLICKED", this.onStartButtonClicked, this);
 
     document.addEventListener('visibilitychange', () => {
@@ -164,11 +174,11 @@ export class Game {
   private onStartButtonClicked(): void {
     this.loadingContainer.visible = false;
     this.balloonManager = new BalloonManager(900);
-    const TELEGRAM_BOT_TOKEN = '7132134647:AAHj27DA9kHD_2cFANCo-dumSCA-nGm-E3M';
-    const telegramLogin = new TelegramLoginParsing(TELEGRAM_BOT_TOKEN);
-    const loginButton = new TelegramLogInBtn(telegramLogin);
-    loginButton.position.set(300,400);
-    this.gameContainer.addChild(loginButton);
+    // const TELEGRAM_BOT_TOKEN = '7132134647:AAHj27DA9kHD_2cFANCo-dumSCA-nGm-E3M';
+    // const telegramLogin = new TelegramLoginParsing(TELEGRAM_BOT_TOKEN);
+    // const loginButton = new TelegramLogInBtn(telegramLogin);
+    // loginButton.position.set(300,400);
+    // this.gameContainer.addChild(loginButton);
     // console.log(window.onTelegramAuth);
   }
 

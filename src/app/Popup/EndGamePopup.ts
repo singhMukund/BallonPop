@@ -19,11 +19,17 @@ export class EndGamePop extends Container{
     }
 
     private setPosition() :void{
-        if(this.textContainer.width > (window.innerWidth * 0.7)){
+        if(this.textContainer.width > (window.innerWidth * 0.7) || !CommonConfig.the.isDesktop()){
             this.textContainer.scale.set(0.6);
         }
-        this.textContainer.position.set((window.innerWidth - this.textContainer.width) / 2, (window.innerHeight - this.textContainer.height) / 2);
+        if(CommonConfig.the.isPortraitmobile() || CommonConfig.the.isDesktop()){
+            this.textContainer.position.set((window.innerWidth - this.textContainer.width) / 2, (window.innerHeight - this.textContainer.height) * 0.55);
+        }else{
+            this.textContainer.position.set((window.innerWidth - this.textContainer.width) / 2, (window.innerHeight - this.textContainer.height) * 0.8);
+        }
     }
+
+    
 
     private init() :void{
         this.popupBg = new Graphics();
