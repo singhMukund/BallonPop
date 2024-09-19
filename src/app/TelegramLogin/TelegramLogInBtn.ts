@@ -70,7 +70,7 @@ export class TelegramLogInBtn extends Container {
         console.log('Button clicked. The Telegram WebApp should handle authentication.');
      //   https://oauth.telegram.org/auth?bot_id=YOUR_BOT_ID&scope=YOUR_SCOPE&public_key=YOUR_PUBLIC_KEY&nonce=YOUR_NONCE
 
-     const telegramUrl = `https://oauth.telegram.org/auth?bot_id=7478853862:AAEdOmYGIrvnu3neTbQqBC1D9ZIgbgCZlMc&scope=chat:read+user:read&public_key=ea95068b&nonce=7478853862`;
+     const telegramUrl = `https://oauth.telegram.org/auth?bot_id=7132134647:AAHj27DA9kHD_2cFANCo-dumSCA-nGm-E3M&scope=chat:read+user:read&public_key=ea95068b&nonce=7132134647`;
 
       // Redirect to the URL
         window.location.href = telegramUrl;
