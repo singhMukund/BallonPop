@@ -38,8 +38,6 @@ export class TelegramLogInBtn extends Container {
         // Register the onTelegramAuth function globally
         window.onTelegramAuth = this.handleTelegramAuth.bind(this);
         console.log('onTelegramAuth function set globally');
-        this.addTelegramWidgetScript();
-
         this.simulateTelegramAuth();
 
     }
@@ -48,23 +46,7 @@ export class TelegramLogInBtn extends Container {
      
     }
 
-    private addTelegramWidgetScript(): void {
-        const script = document.createElement('script');
-        script.src = 'https://telegram.org/js/telegram-widget.js?15';
-        script.async = true;
-        script.dataset.telegramLogin = 'trikon_MiniGame_bot';
-        script.dataset.size = 'large';
-        script.dataset.userpic = 'false';
-        script.dataset.requestAccess = 'write';
-        script.dataset.onauth = 'onTelegramAuth(user)';
-        script.onload = () => {
-            console.log('Telegram widget script loaded successfully');
-        };
-        script.onerror = () => {
-            console.error('Failed to load Telegram widget script');
-        };
-        document.body.appendChild(script);
-    }
+    
 
     private handleTelegramAuth(user: TelegramUser): void {
         console.log('Authenticated user:', user);

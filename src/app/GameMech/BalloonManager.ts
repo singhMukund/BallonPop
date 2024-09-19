@@ -9,6 +9,8 @@ import { Levelcard } from "../UI/LevelCount";
 import { LevelPopup } from "../Popup/LevelPopup";
 import { TaskPopup } from "../Popup/TaskPopup";
 import { SoundBtn } from "../UI/SoundBtn";
+import { WeatherBackground } from "../Background/WeatherBackground";
+import { RainManager } from "./RainManager";
 
 export class BalloonManager {
     private ticker: Ticker;
@@ -28,11 +30,16 @@ export class BalloonManager {
     private speed: number = 2;
     private taskpopup !: TaskPopup;
     private soundBtn !: SoundBtn;
+    private weatherbackround !: WeatherBackground;
+    private weatherTimng : number = 1000;
+    private rainManager !: RainManager;
 
     constructor(spawnInterval: number) {
         this.app = Game.the.app;
         this.spawnInterval = spawnInterval;
         this.ticker = new Ticker();
+        this.weatherbackround = new WeatherBackground();
+        this.app.stage.addChild(this.weatherbackround);
         this.endGamePop = new EndGamePop();
         this.app.stage.addChild(this.endGamePop);
         this.timerContainer = new TimerContainer();
@@ -49,6 +56,9 @@ export class BalloonManager {
         this.app.stage.addChild(this.taskpopup);
         this.ticker.add(this.update, this);
         this.ticker.start();
+        
+        this.rainManager = new RainManager(this.balloons); // Pass balloons
+        Game.the.app.stage.addChild(this.rainManager);
         Game.the.app.stage.on("RESUME_GAME_FOR_NEXT_LEVEl", this.resumeGameForNextLevel, this);
     }
 
@@ -70,6 +80,7 @@ export class BalloonManager {
             }
 
         }
+        this.rainManager.update(delta);
         if (this.ticker.lastTime - this.lastSpawnTime > this.spawnInterval) {
             this.spawnBalloon();
             this.lastSpawnTime = this.ticker.lastTime;
@@ -105,12 +116,26 @@ export class BalloonManager {
         CommonConfig.the.setGameOver(false);
         CommonConfig.the.setLevelsNo(1);
         this.levelNo.setText();
-        this.speed += 2;
-        // if(CommonConfig.the.getLevelsNo() > 3){
-        //     this.speed = 4;
-        // }else{
-        //     this.speed += 2;
-        // }
+        const weahther : string[] = ['left','right'];
+        if(CommonConfig.the.getLevelsNo() > 2){
+            const currentWeather : string = weahther[CommonConfig.the.getLevelsNo() % 2];
+            this.weatherbackround.show(currentWeather);
+            for (const balloon of this.balloons) { 
+                if(currentWeather === 'left'){
+                    balloon.windSpeed = -1;
+                }else{
+                    balloon.windSpeed = 1;
+                }
+            }
+        }else{
+            this.weatherbackround.show('nowind');
+            for (const balloon of this.balloons) { 
+                balloon.windSpeed = 0;
+            }
+        }
+        if(CommonConfig.the.getLevelsNo() <= 2){
+            this.speed += 2;
+        }
         this.spawnInterval -= 100;
         this.timerContainer.resetTimer();
         CommonConfig.the.setPauseForNextLevel(false);
@@ -123,6 +148,17 @@ export class BalloonManager {
     private spawnBalloon() {
         const balloon: Balloon = new Balloon(10, this.speed);
         balloon.position.set(Math.random() * ((window.innerWidth * 0.9) - 100) + 50, window.innerHeight + 50);
+        const weahther : string[] = ['left','right'];
+        if(CommonConfig.the.getLevelsNo() > 2){
+            const currentWeather : string = weahther[CommonConfig.the.getLevelsNo() % 2];
+            if(currentWeather === 'left'){
+                balloon.windSpeed = -1;
+            }else{
+                balloon.windSpeed = 1;
+            }
+        }else{
+            balloon.windSpeed = 0;
+        }
         // if((window.innerWidth > window.innerHeight) && (window.innerHeight === 1600)){
         //     balloon.position.set(Math.random() * (window.innerWidth - 100) + 100, 1600);
         // }

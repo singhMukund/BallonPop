@@ -1,4 +1,4 @@
-import { AnimatedSprite, Container, Loader, Sprite, Text, TextStyle, Texture } from "pixi.js";
+import { AnimatedSprite, Container, DEG_TO_RAD, Graphics, Loader, Sprite, Text, TextStyle, Texture } from "pixi.js";
 import { Game } from "../game";
 import { CommonConfig } from "../../Common/CommonConfig";
 import gsap from "gsap";
@@ -9,7 +9,7 @@ export class Balloon extends Container {
     private balloon!: Sprite;
     private _points: number;
     private _speed: number;
-    private _destroyed_: boolean = false;
+    _destroyed_: boolean = false;
     private _scoreText_ !: Text;
     private textOnBalloon !: Text;
     private stringValueOnBalloon: string;
@@ -18,8 +18,10 @@ export class Balloon extends Container {
     private burstAnimation !: AnimatedSprite;
     private ballonAndAnimContainer !: Container;
     private clickCount: number = 0
-    private windSpeed : number = 1;
-    private direction : string = "leftToright" //''rightToleft
+    windSpeed: number = 0;
+    private direction: string = "leftToright" //''rightToleft
+    private rotationTween: gsap.core.Tween | null = null;
+    private balloonGraphics !: Graphics;
 
 
 
@@ -32,17 +34,21 @@ export class Balloon extends Container {
         this.initBalloon();
         this.setPosition();
         Game.the.app.stage.on("RESIZE_THE_APP", this.setPosition, this);
+        this.rotationLooptween();
     }
 
     private setPosition(): void {
-        if(!this || this._destroyed_){
+        if (!this || this._destroyed_) {
             return
         }
         if (!this._destroyed_ && (window.innerHeight > window.innerWidth || !CommonConfig.the.isDesktop()) && this && this.balloon) {
             this.scale.set(0.7);
         }
-    } 
-    
+
+        // this.balloonGraphics.position.set(this.width/3,this.height/3);
+
+    }
+
 
     private initBalloon(): void {
         this.ballonAndAnimContainer = new Container();
@@ -76,6 +82,12 @@ export class Balloon extends Container {
         this.addChild(this.textOnBalloon);
         this.createBurstAnim();
         this._scoreText_.alpha = 0;
+        // this.balloonGraphics = new Graphics();
+        // this.balloonGraphics.lineStyle(1, 0xff0000);
+        // this.balloonGraphics.drawCircle(0, 0, this.height/2);
+        // this.balloonGraphics.endFill();
+        // this.addChild(this.balloonGraphics);
+        // this.hitArea.contains()
         this.on('pointerdown', this.onBalloonClicked, this);
     }
 
@@ -94,7 +106,8 @@ export class Balloon extends Container {
 
 
 
-    private onBalloonClicked() {
+    private onBalloonClicked(event: PIXI.InteractionEvent) {
+        event
         if (this.clickCount === 0 && this.randomColorCode === "golden") {
             this.scaleUp();
         } else if (this.clickCount === 0 && this.randomColorCode !== "golden") {
@@ -107,29 +120,29 @@ export class Balloon extends Container {
         this.clickCount += 1;
     }
 
-    private scaleUp() :void{
-        let finalScore : number = 1.2;
+    private scaleUp(): void {
+        let finalScore: number = 1.2;
         if (window.innerHeight > window.innerWidth && this) {
             finalScore = 0.9
-        }else{
+        } else {
             finalScore = 1.2
         }
-        gsap.to(this.scale, { x : finalScore,y : finalScore, duration: 0.5});
+        gsap.to(this.scale, { x: finalScore, y: finalScore, duration: 0.5 });
         // sound.play('oops_Sound');
     }
 
     private destroyBalloonCalled(): void {
         this.calculatePoints();
         this._scoreText_.text = `${this._points}+`;
-        if(this._points === -30){
+        if (this._points === -30) {
             this._scoreText_.text = `${this._points}`;
-        }  
+        }
         this.emit('balloonClicked', this._points);
         this.destroyBalloon();
         this.burstAnimation.visible = true;
         this.burstAnimation.play();
-        if(sound.exists('BurstSound')){
-            sound.play('BurstSound');      
+        if (sound.exists('BurstSound')) {
+            sound.play('BurstSound');
         }
     }
 
@@ -159,9 +172,9 @@ export class Balloon extends Container {
         if (this.randomColorCode === "golden") {
             let randomScore: number[] = [40, -30];
             this._points = randomScore[Math.floor(Math.random() * randomScore.length)];
-            if(this._points === -30){
+            if (this._points === -30) {
                 this._scoreText_.text = `${this._points}`;
-            }   
+            }
         } else {
             this._scoreText_.text = `${this._points}+`;
         }
@@ -180,6 +193,7 @@ export class Balloon extends Container {
         this.destroy();
         this.removeAllChild();
         this.clickCount = 0;
+        this.rotationTween?.kill();
         // this.removeChild();
         // this.removeChildren(1)
     }
@@ -194,29 +208,40 @@ export class Balloon extends Container {
         return this._destroyed_;
     }
 
+    private rotationLooptween(): void {
+        this.rotationTween = gsap.to(this.balloon, {
+            duration: 10,
+            rotation: 10 * DEG_TO_RAD,
+            repeat: -1
+        })
+    }
+
     public update(delta: number) {
         if (CommonConfig.the.getGameOver()) {
             return;
         }
         if (!this._destroyed_) {
             this.y -= this._speed * delta;
-            if(CommonConfig.the.isPortraitmobile()){
-                if((this.x > (window.innerWidth * 0.25) + (this.balloon.width) || this.direction === "rightToleft") && !(this.x < (window.innerWidth * 0.5) - (this.balloon.width))){
-                    this.x -= this.windSpeed * delta;
-                    this.direction = "rightToleft"
-                }else if((this.x < (window.innerWidth * 0.5) - (this.balloon.width) || this.direction === "leftToright") && !(this.x > (window.innerWidth * 0.25) + (this.balloon.width))){
-                    this.x += this.windSpeed * delta;
-                    this.direction = "leftToright"
-                }
-            }else{
-                if((this.x > (window.innerWidth * 0.5) + (this.balloon.width) || this.direction === "rightToleft") && !(this.x < (window.innerWidth * 0.5) - (this.balloon.width))){
-                    this.x -= this.windSpeed * delta;
-                    this.direction = "rightToleft"
-                }else if((this.x < (window.innerWidth * 0.5) - (this.balloon.width) || this.direction === "leftToright") && !(this.x > (window.innerWidth * 0.5) + (this.balloon.width))){
-                    this.x += this.windSpeed * delta;
-                    this.direction = "leftToright"
-                }
+            if (this.y < 2 * (window.innerHeight / 3) && this.windSpeed !== 0) {
+                this.x += this.windSpeed * delta
             }
+            // if(CommonConfig.the.isPortraitmobile()){
+            //     if((this.x > (window.innerWidth * 0.25) + (this.balloon.width) || this.direction === "rightToleft") && !(this.x < (window.innerWidth * 0.5) - (this.balloon.width))){
+            //         this.x -= this.windSpeed * delta;
+            //         this.direction = "rightToleft"
+            //     }else if((this.x < (window.innerWidth * 0.5) - (this.balloon.width) || this.direction === "leftToright") && !(this.x > (window.innerWidth * 0.25) + (this.balloon.width))){
+            //         this.x += this.windSpeed * delta;
+            //         this.direction = "leftToright"
+            //     }
+            // }else{
+            //     if((this.x > (window.innerWidth * 0.5) + (this.balloon.width) || this.direction === "rightToleft") && !(this.x < (window.innerWidth * 0.5) - (this.balloon.width))){
+            //         this.x -= this.windSpeed * delta;
+            //         this.direction = "rightToleft"
+            //     }else if((this.x < (window.innerWidth * 0.5) - (this.balloon.width) || this.direction === "leftToright") && !(this.x > (window.innerWidth * 0.5) + (this.balloon.width))){
+            //         this.x += this.windSpeed * delta;
+            //         this.direction = "leftToright"
+            //     }
+            // }
             // if(this.y < 2*(window.innerHeight/3)){
             //     this.x -= this.windSpeed * delta
             // }

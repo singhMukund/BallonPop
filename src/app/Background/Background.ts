@@ -1,6 +1,7 @@
 import { Application, Container, Graphics, Loader, Sprite, Texture } from "pixi.js";
 import { Game } from "../game";
 import sound from "pixi-sound";
+import { Emitter } from "pixi-particles";
 
 export class Background extends Container{
     private popupBg !: Graphics;
@@ -49,7 +50,6 @@ export class Background extends Container{
         }
     }
 
-    
 
 }
 

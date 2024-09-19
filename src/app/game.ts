@@ -20,6 +20,8 @@ export class Game {
   private gameContainer!: Container;
   private balloonManager !: BalloonManager
   private loadingContainer !: LoadingContainer;
+  background !: Background;
+  private loginButton !: TelegramLogInBtn
 
 
   static get the(): Game {
@@ -45,7 +47,26 @@ export class Game {
       pixiContainer.appendChild(this.app.view);
     }
     this.init();
+    this.addTelegramWidgetScript();
   }
+
+  private addTelegramWidgetScript(): void {
+    const script = document.createElement('script');
+    script.src = 'https://telegram.org/js/telegram-widget.js?15';
+    script.async = true;
+    script.dataset.telegramLogin = 'trikon_MiniGame_bot';
+    script.dataset.size = 'large';
+    script.dataset.userpic = 'false';
+    script.dataset.requestAccess = 'write';
+    script.dataset.onauth = 'onTelegramAuth(user)';
+    script.onload = () => {
+        console.log('Telegram widget script loaded successfully');
+    };
+    script.onerror = () => {
+        console.error('Failed to load Telegram widget script');
+    };
+    document.body.appendChild(script);
+}
 
   init(): void {
 
@@ -59,6 +80,8 @@ export class Game {
 
   private loadImages() {
     this.loader.add('game_bg', './assets/StaticImage/BG_gradient.png');
+    this.loader.add('clouds', './assets/StaticImage/clouds.png');
+    this.loader.add('smokeparticle', './assets/StaticImage/smokeparticle.png');
     this.loader.add('balloon_blue', './assets/StaticImage/balloon_blue.png');
     this.loader.add('balloon_green', './assets/StaticImage/balloon_green.png');
     this.loader.add('balloon_orange', './assets/StaticImage/balloon_orange.png');
@@ -76,8 +99,7 @@ export class Game {
     this.loader.add('soundOffBtn', './assets/StaticImage/sound_off.png');
     this.loader.add('Ballons_img', './assets/StaticImage/Ballons_img.png');
     this.loader.add('Play_btn', './assets/StaticImage/Play_btn.png');
-
-
+    this.loader.add('raindrop', './assets/StaticImage/raindrop.png');
     this.loader.add('BurstAnim_frame_01', './assets/StaticImage/BurstAnimaton/frame_01.png');
     this.loader.add('BurstAnim_frame_02', './assets/StaticImage/BurstAnimaton/frame_02.png');
     this.loader.add('BurstAnim_frame_03', './assets/StaticImage/BurstAnimaton/frame_03.png');
@@ -145,7 +167,8 @@ export class Game {
 
   private onLoadComplete() {
     new CommonConfig();
-    this.gameContainer.addChild(new Background());
+    this.background = new Background();
+    this.gameContainer.addChild(this.background);
     this.loadingContainer = new LoadingContainer();
     this.app.stage.addChild(this.loadingContainer);
     this.loadingContainer.startLoading();
@@ -174,12 +197,12 @@ export class Game {
   private onStartButtonClicked(): void {
     this.loadingContainer.visible = false;
     this.balloonManager = new BalloonManager(900);
-    // const TELEGRAM_BOT_TOKEN = '7132134647:AAHj27DA9kHD_2cFANCo-dumSCA-nGm-E3M';
-    // const telegramLogin = new TelegramLoginParsing(TELEGRAM_BOT_TOKEN);
-    // const loginButton = new TelegramLogInBtn(telegramLogin);
-    // loginButton.position.set(300,400);
-    // this.gameContainer.addChild(loginButton);
-    // console.log(window.onTelegramAuth);
+    const TELEGRAM_BOT_TOKEN = '7132134647:AAHj27DA9kHD_2cFANCo-dumSCA-nGm-E3M';
+    const telegramLogin = new TelegramLoginParsing(TELEGRAM_BOT_TOKEN);
+    this.loginButton = new TelegramLogInBtn(telegramLogin);
+    console.log(window.onTelegramAuth);
+    this.loginButton.position.set((window.innerWidth - this.loginButton.width)/2,(window.innerHeight - this.loginButton.height) * 0.8);
+    this.app.stage.addChild(this.loginButton);
   }
 
   resize() {
