@@ -1,0 +1,56 @@
+{"frames": {
+	"balloon_brandedTrikon.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":0,"y":0,"w":137,"h":184},
+		"spriteSourceSize": {"x":0,"y":0,"w":137,"h":184},
+		"sourceSize": {"w":137,"h":184}
+	},
+	"balloon_electric.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":0,"y":186,"w":124,"h":169},
+		"spriteSourceSize": {"x":0,"y":0,"w":124,"h":169},
+		"sourceSize": {"w":124,"h":169}
+	},
+	"balloon_golden.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":126,"y":186,"w":118,"h":197},
+		"spriteSourceSize": {"x":0,"y":0,"w":118,"h":197},
+		"sourceSize": {"w":118,"h":197}
+	},
+	"balloon_green.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":139,"y":0,"w":101,"h":161},
+		"spriteSourceSize": {"x":6,"y":2,"w":110,"h":163},
+		"sourceSize": {"w":110,"h":163}
+	},
+	"balloon_orange.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":246,"y":196,"w":102,"h":197},
+		"spriteSourceSize": {"x":4,"y":3,"w":117,"h":204},
+		"sourceSize": {"w":117,"h":204}
+	},
+	"balloon_pink.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":350,"y":199,"w":101,"h":196},
+		"spriteSourceSize": {"x":6,"y":2,"w":110,"h":201},
+		"sourceSize": {"w":110,"h":201}
+	},
+	"balloon_sea_green.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":350,"y":0,"w":101,"h":197},
+		"spriteSourceSize": {"x":16,"y":5,"w":124,"h":207},
+		"sourceSize": {"w":124,"h":207}
+	},
+	"balloon_yellow.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":246,"y":0,"w":102,"h":194},
+		"spriteSourceSize": {"x":7,"y":6,"w":126,"h":207},
+		"sourceSize": {"w":126,"h":207}
+	}
+},
+"meta": {
+	"app": "ShoeBox",
+	"image": "balloons.png",
+	"size": {"w":512,"h":512}
+}
+}

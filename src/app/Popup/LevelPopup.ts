@@ -1,5 +1,5 @@
 import gsap from "gsap";
-import { Container, Graphics, Sprite, Text, TextStyle } from "pixi.js";
+import { Container, Graphics, Sprite, Text, TextStyle, Texture } from "pixi.js";
 import { CommonConfig } from "../../Common/CommonConfig";
 import { Game } from "../game";
 
@@ -12,16 +12,24 @@ export class LevelPopup extends Container {
     private textContanerBg !: Sprite;
     private buttonBg !: Graphics;
     private textContainer !: Container;
+    private _hideClicked : boolean = false;
+    private _isGetResultValue : boolean = false;
     constructor() {
         super();
         this.init();
         this.setPosition();
         Game.the.app.stage.on("RESIZE_THE_APP", this.setPosition, this);
+        Game.the.app.stage.on("DESTROY_TEXTURE", this.destroy, this);
+        Game.the.app.stage.on("HIDE_LEVEL_POP_UP", this.getResultFromBackedn, this);
+    }
+
+    destroy(options?: { children?: boolean; texture?: boolean; baseTexture?: boolean; } | undefined): void {
+        super.destroy({ children: true,texture : true, baseTexture : true })
     }
 
     private setPosition(): void {
         if (this.popupContainer.width > (window.innerWidth * 0.7) || !CommonConfig.the.isDesktop()) {
-            this.popupContainer.scale.set(0.55);
+            this.popupContainer.scale.set(0.45);
         }
         this.popupContainer.position.set((window.innerWidth - this.popupContainer.width) / 2, (window.innerHeight - this.popupContainer.height) * 0.55);
     }
@@ -36,7 +44,8 @@ export class LevelPopup extends Container {
         this.popupContainer = new Container();
         this.addChild(this.popupContainer);
 
-        this.textContanerBg = new Sprite(Game.the.app.loader.resources['pop_up'].texture);
+        let textTure : Texture = Game.the.app.loader.resources['popUp'].textures?.[`pop_up.png`] as Texture; 
+        this.textContanerBg = new Sprite(textTure);
         // this.textContanerBg.beginFill(0x2786e8,1);
         // this.textContanerBg.drawRoundedRect(0, 0, 550, 320,24);
         // this.textContanerBg.endFill();
@@ -100,36 +109,58 @@ export class LevelPopup extends Container {
         this.y = this.y - 60;
         this.buttonBg.interactive = false;
         this.buttonBg.buttonMode = false;
+        this.visible = false;
     }
 
     private onButtonClick() {
-        this.hide();
+        this.hideClicked();
     }
 
     show(): void {
+        if(this.visible){
+            return
+        }
+        this.buttonBg.alpha = 0.4;
+        Game.the.app.stage.emit("ENABLE_DISABLE_GIFT_BTN",true);
+        CommonConfig.the.setLevelsNo(CommonConfig.the.getLevelsNo() + 1);
+        CommonConfig.the.setIsLevelPopupOpen(true);
+        Game.the.app.stage.emit("UPDATE_SCORE");
         Game.the.app.stage.emit("STOP_BG_SOUND");
         this.totalScore.text = `Your total score is ${CommonConfig.the.getTotalScore()}`;
-        this.text.text = `Ready For Next Ride Level ${CommonConfig.the.getLevelsNo() + 1}`;
+        this.text.text = `Ready For Next Ride Level ${CommonConfig.the.getLevelsNo()}`;
         this.visible = true;
         this.alpha = 0;
         gsap.to(this, { alpha: 1, duration: 0.5 });
         this.popupBg.interactive = true;
         this.buttonBg.interactive = true;
-        this.buttonBg.buttonMode = true;
+        this.buttonBg.buttonMode = true;   
     }
 
-    private hide(): void {
-        this.visible = true;
+    private hideClicked(): void {
+        if(!this._isGetResultValue){
+            return;
+        }
         this.alpha = 1;
-        gsap.to(this, {
-            alpha: 0, duration: 0.5, onComplete: () => {
-                this.visible = false;
-                Game.the.app.stage.emit("RESUME_GAME_FOR_NEXT_LEVEl");
-                this.popupBg.interactive = false;
-                this.buttonBg.interactive = false;
-                this.buttonBg.buttonMode = false;
-                Game.the.app.stage.emit("PLAY_BG_SOUND");
-            }
-        });
+        this._hideClicked = true;
+        if(this._hideClicked && this._isGetResultValue){
+            Game.the.app.stage.emit("HIDE_GIFT_POP_UP");
+            gsap.to(this, {
+                alpha: 0, duration: 0.5, onComplete: () => {
+                    this.visible = false;
+                    Game.the.app.stage.emit("RESUME_GAME_FOR_NEXT_LEVEl");
+                    this.popupBg.interactive = false;
+                    this.buttonBg.interactive = false;
+                    this.buttonBg.buttonMode = false;
+                    Game.the.app.stage.emit("PLAY_BG_SOUND");
+                    CommonConfig.the.setIsLevelPopupOpen(false);
+                    Game.the.app.stage.emit("ENABLE_DISABLE_GIFT_BTN",false);
+                }
+            });
+        }
+    }
+
+    private getResultFromBackedn(): void {
+        this._isGetResultValue = true;
+        this.buttonBg.alpha = 1;
     }
 }

@@ -13,8 +13,17 @@ and
 2.npm run build
 
 3.npm run dev 
+# For Deployement
+# Build
+npm run build
+# strart
+4.npx vite preview --host :: --port 9001 --no-open 
 
-4.check on your local app on below link 
+5.npx vite preview --host 0.0.0.0 --port 9001 --no-open
+
+
+
+6.check on your local app on below link 
 
 # You can check game at below links
 

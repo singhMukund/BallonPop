@@ -1,10 +1,10 @@
 import { Application, Container, Graphics, Loader, Sprite, Texture } from "pixi.js";
 import { Game } from "../game";
-import sound from "pixi-sound";
-import { Emitter } from "pixi-particles";
+import { sound } from "@pixi/sound";
+import { CommonConfig } from "../../Common/CommonConfig";
+// import sound from "pixi-sound";
 
 export class Background extends Container{
-    private popupBg !: Graphics;
     private gameBg !: Sprite;
 
     constructor(){
@@ -14,13 +14,18 @@ export class Background extends Container{
         Game.the.app.stage.on("RESIZE_THE_APP", this.setPosition, this);
         Game.the.app.stage.on("STOP_BG_SOUND", this.stopSound, this);
         Game.the.app.stage.on("PLAY_BG_SOUND", this.playBgSound, this);
+        Game.the.app.stage.on("DESTROY_TEXTURE", this.destroyAfterGameRemoved, this);
+    }
+
+    private destroyAfterGameRemoved() :void{
+        this.destroy({ children: true,texture : true, baseTexture : true })
     }
 
     private setPosition() :void{
         let scaleX : number = 0;
         let scaleY : number = 0;
-        this.gameBg.width = 786;
-        this.gameBg.height = 1650;
+        this.gameBg.width = 390;
+        this.gameBg.height = 844;
         if(window.innerHeight > window.innerWidth && this){
             scaleX = window.innerWidth / this.gameBg.width;
             scaleY = window.innerHeight / this.gameBg.height;
@@ -29,7 +34,7 @@ export class Background extends Container{
             scaleX = window.innerWidth / this.gameBg.width;
             this.gameBg.scale.set(scaleX); 
         }
-        this.gameBg.position.set((window.innerWidth - this.gameBg.width) / 2 , (window.innerHeight - this.gameBg.height) / 2)
+        this.gameBg.position.set((window.innerWidth - this.gameBg.width) / 2 , (window.innerHeight - this.gameBg.height) / 2);
     }
 
     private intializeBg() :void{
@@ -39,10 +44,19 @@ export class Background extends Container{
     }
 
     private stopSound() :void{
-        sound.stop('BgSound');  
+        if(!this){
+            return
+         }
+        if(sound.exists('BgSound')){
+            sound.stop('BgSound'); 
+        }
+         
     }
 
     private playBgSound() :void{
+        if(!this || CommonConfig.the.getIsSoundMuted()){
+           return
+        }
         if(sound.exists('BgSound')){
             sound.play('BgSound',{
                 loop : true

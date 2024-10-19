@@ -1,0 +1,26 @@
+{"frames": {
+	"ChainReactionBalloon.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":0,"y":0,"w":764,"h":208},
+		"spriteSourceSize": {"x":8,"y":1,"w":780,"h":218},
+		"sourceSize": {"w":780,"h":218}
+	},
+	"PlayBtn.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":0,"y":664,"w":150,"h":138},
+		"spriteSourceSize": {"x":1,"y":0,"w":151,"h":138},
+		"sourceSize": {"w":151,"h":138}
+	},
+	"pop_up.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":0,"y":210,"w":731,"h":452},
+		"spriteSourceSize": {"x":2,"y":0,"w":736,"h":458},
+		"sourceSize": {"w":736,"h":458}
+	}
+},
+"meta": {
+	"app": "ShoeBox",
+	"image": "popUp.png",
+	"size": {"w":1024,"h":1024}
+}
+}

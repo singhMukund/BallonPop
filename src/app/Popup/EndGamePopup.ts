@@ -1,5 +1,5 @@
 import gsap from "gsap";
-import { Container, Graphics, Sprite, Text, TextStyle } from "pixi.js";
+import { Container, Graphics, Sprite, Text, TextStyle, Texture } from "pixi.js";
 import { CommonConfig } from "../../Common/CommonConfig";
 import { Game } from "../game";
 
@@ -16,11 +16,16 @@ export class EndGamePop extends Container{
         this.init();
         this.setPosition();
         Game.the.app.stage.on("RESIZE_THE_APP", this.setPosition, this);
+        Game.the.app.stage.on("DESTROY_TEXTURE", this.destroy, this);
+    }
+
+    destroy(options?: { children?: boolean; texture?: boolean; baseTexture?: boolean; } | undefined): void {
+        super.destroy({ children: true,texture : true, baseTexture : true })
     }
 
     private setPosition() :void{
         if(this.textContainer.width > (window.innerWidth * 0.7) || !CommonConfig.the.isDesktop()){
-            this.textContainer.scale.set(0.6);
+            this.textContainer.scale.set(0.45);
         }
         if(CommonConfig.the.isPortraitmobile() || CommonConfig.the.isDesktop()){
             this.textContainer.position.set((window.innerWidth - this.textContainer.width) / 2, (window.innerHeight - this.textContainer.height) * 0.55);
@@ -40,8 +45,8 @@ export class EndGamePop extends Container{
 
         this.textContainer = new Container();
         this.addChild(this.textContainer);
-
-        this.textContanerBg = new Sprite(Game.the.app.loader.resources['pop_up'].texture);
+        let textTure : Texture = Game.the.app.loader.resources['popUp'].textures?.[`pop_up.png`] as Texture; 
+        this.textContanerBg = new Sprite(textTure);
         // this.textContanerBg.beginFill(0x2786e8,1);
         // this.textContanerBg.drawRoundedRect(0, 0, 550, 320,24);
         // this.textContanerBg.endFill();
@@ -58,7 +63,7 @@ export class EndGamePop extends Container{
             wordWrapWidth : 500,
         });
 
-        this.text = new Text(`Game Over! You missed Total 15 balloons in total ${CommonConfig.the.getLevelsNo()} level.`, style);
+        this.text = new Text(`Game Over! You missed Total ${CommonConfig.the.getTotalMissedBalloonsLeftChance()} balloons in total ${CommonConfig.the.getLevelsNo()} level.`, style);
 
         this.text.x = (this.textContanerBg.width - this.text.width)/2;
         this.text.y = (this.textContanerBg.height - this.text.height)/2 - 20;
@@ -100,6 +105,7 @@ export class EndGamePop extends Container{
         this.y = this.y - 60;
         this.buttonBg.interactive = false;
         this.buttonBg.buttonMode = false;
+        this.visible = true;
     }
 
     private onButtonClick() {
@@ -110,11 +116,18 @@ export class EndGamePop extends Container{
     }
 
     show(missed : boolean) :void{
+        // if(this.visible = true){
+        //     return;
+        // }
+        if(CommonConfig.the.getIsLevelPopupOpen()){
+           return;
+        }
         Game.the.app.stage.emit("STOP_BG_SOUND");
+        Game.the.app.stage.emit("ENABLE_DISABLE_GIFT_BTN",true);
         this.totalScore.text = `Your total score is ${CommonConfig.the.getTotalScore()}`;
         this.popupBg.interactive = true;
         if(!missed){
-            this.text.text = `Game Over! You didn't scored ${CommonConfig.LEVEL_01_THRESHOLD * CommonConfig.the.getLevelsNo()} in level ${CommonConfig.the.getLevelsNo()} level.`;
+            this.text.text = `Game Over! You didn't scored ${CommonConfig.LEVEL_01_THRESHOLD} in level ${CommonConfig.the.getLevelsNo()} level.`;
         }else{
             this.text.text = `Game Over! You missed Total 15 balloons in total ${CommonConfig.the.getLevelsNo()} level.`
         }
@@ -126,6 +139,7 @@ export class EndGamePop extends Container{
         this.text.x = (this.textContanerBg.width - this.text.width)/2;
         this.text.y = (this.textContanerBg.height - this.text.height)/2 - 20;
         this.totalScore.x = (this.textContanerBg.width - this.totalScore.width) / 2;
-
+        // localStorage.removeItem('missed_balloon_count');
+        // localStorage.removeItem('balloon_speed');
     }
 }

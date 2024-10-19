@@ -3,22 +3,39 @@ import MobileDetect from "mobile-detect";
 export class CommonConfig {
 
     protected static _the: CommonConfig;
-    private missedBalloons : number = 0;
-    private totalscore : number = 0;
-    private gameOver : boolean= false;
-    private level : number = 1;
-    private pauseForNextLevel : boolean = false;
+    private missedBalloonsTotalLeft: number = 0;
+    private missedBalloons: number = 15;
+    private totalscore: number = 0;
+    private currentscore: number = 0;
+    private gameOver: boolean = false;
+    private level: number = 1;
+    private pauseForNextLevel: boolean = false;
 
-    public static LEVEL_01_THRESHOLD : number = 200;
+    public static LEVEL_01_THRESHOLD: number = 200;
 
-    public static taskType : string[] = ["ALPHABET","NUMBER"];
-    public static taskSubType : string[] = ["LESS","GREATER"];
-    public static task : string = "";
-    public currentSubTaskIndex : number = 0;
-    public currentTaskIndex : number = 0;
-    public randomValue : string = "";
-    private colorCodes : string[] = ['blue', 'green', 'orange', 'pink', 'golden','purple','black','blackies'];
-    private balloonCount : number = 0;
+    public static taskType: string[] = ["ALPHABET", "NUMBER"];
+    public static taskSubType: string[] = ["LESS", "GREATER"];
+    public static task: string = "";
+    public currentSubTaskIndex: number = 0;
+    public currentTaskIndex: number = 0;
+    public randomValue: string = "";
+    private colorCodes: string[] = ['green', 'orange', 'pink', 'golden', 'sea_green', 'yellow', "timeLimitedBalloon",'brandedTrikon'];
+    private balloonCount: number = 0;
+    private gameId: string = "";
+    private userId: string = "";
+    private tokens: string = "";
+    private timer: number = 0;
+    private isSoundMuted: boolean = false;
+    private isGamePaused: boolean = false;
+    private isPlayerGetElectricBalloon : boolean = false;
+    private isBrokenCase : boolean = false;
+    private isLevelPopupOpen : boolean = false;
+    private normalScore : number = 10;
+    private totalGiftCount : number = 0;
+    private currentDayGiftCount : number = 0;
+    private getFirstGiftRealsed : boolean = false;
+
+
 
     static get the(): CommonConfig {
         if (!CommonConfig._the) {
@@ -33,7 +50,7 @@ export class CommonConfig {
         return !md.mobile();  // Returns true if it's not a mobile device
     }
 
-    isPortraitmobile() : boolean{
+    isPortraitmobile(): boolean {
         return window.innerHeight > window.innerWidth;
     }
 
@@ -43,8 +60,8 @@ export class CommonConfig {
         this.balloonCount = 0;
     }
 
-    public setPauseForNextLevel(value : boolean) :void{
-       this.pauseForNextLevel = value;
+    public setPauseForNextLevel(value: boolean): void {
+        this.pauseForNextLevel = value;
     }
 
     getRandomBalloon() {
@@ -57,67 +74,210 @@ export class CommonConfig {
                 return 'golden';
             }
         }
-
-        const nonRedColors = this.colorCodes.filter(color => color !== 'golden');
-        const randomIndex = Math.floor(Math.random() * nonRedColors.length);
+        if(this.getLevelsNo() >= 12 && this.getLevelsNo() % 12 === 0 && this.getTotalGiftCount() < (Math.floor(this.getLevelsNo() / 12)) && this.getTotalGiftCount() < 4 && !this.getFirstGiftRealsed){
+            this.getFirstGiftRealsed = true;
+            return 'brandedTrikon';
+        }
+        let nonRedColors = this.colorCodes.filter(color => color !== 'golden');
+        nonRedColors = nonRedColors.filter(color => color !== 'brandedTrikon')
+        this.getLevelsNo() < 10 && (nonRedColors = nonRedColors.filter(color => color !== 'timeLimitedBalloon'));
+        let randomIndex : number= Math.floor(Math.random() * nonRedColors.length);
+        if(this.getLevelsNo() >=5 && this.getLevelsNo() % 5 === 0 && this.getTimer() < 7 && !this.getPlayerElectricBalloon()){
+            this.setPlayerElectricBalloon(true);
+            return 'electric';
+        }
         return nonRedColors[randomIndex];
+    }
+    
+    public setIsLevelPopupOpen(value: boolean): void {
+        this.isLevelPopupOpen = value;
+    }
+
+    public getIsLevelPopupOpen(): boolean {
+        return this.isLevelPopupOpen;
+    }
+
+    public setIsSoundMuted(value: boolean): void {
+        this.isSoundMuted = value;
+    }
+
+    public getIsSoundMuted(): boolean {
+        return this.isSoundMuted;
+    }
+
+    public setPlayerElectricBalloon(value: boolean): void {
+        this.isPlayerGetElectricBalloon = value;
+    }
+
+    public getPlayerElectricBalloon(): boolean {
+        return this.isPlayerGetElectricBalloon;
+    }
+    
+    private startingLevelOfDay : number = 0;
+
+    public setStartingLevelOfDay(value : number) : void{
+        this.startingLevelOfDay = value;
+    }
+
+    public getStartingLevelOfDay() : number{
+        return this.startingLevelOfDay;
     }
 
 
-    public getPauseForNextLevel() :boolean{
+    public setGamePaused(value: boolean): void {
+        this.isGamePaused = value;
+    }
+
+    public getGamePaused(): boolean {
+        return this.isGamePaused;
+    }
+
+    public setGameId(value: string): void {
+        this.gameId = value;
+    }
+
+    public getGameId(): string {
+        return this.gameId;
+    }
+
+    public setUserId(value: string): void {
+        this.userId = value;
+    }
+
+    public getUserId(): string {
+        return this.userId;
+    }
+
+    public setTaken(value: string): void {
+        this.tokens = value;
+    }
+
+    public getTaken(): string {
+        return this.tokens;
+    }
+
+    public getPauseForNextLevel(): boolean {
         return this.pauseForNextLevel;
     }
 
-    public setMissedBalloons(value : number) :void{
-        this.missedBalloons += value;
+    public setTotalMissedBalloonsLeftChance(value: number): void {
+        this.missedBalloonsTotalLeft += value;
     }
 
-    public setGameOver(value : boolean) {
-        this.gameOver = value;
+
+    public getTotalMissedBalloonsLeftChance(): number {
+        return this.missedBalloonsTotalLeft;
     }
 
-    public getGameOver() : boolean{
-        return this.gameOver;
+    public setNormalScore(value: number): void {
+        this.normalScore = value;
     }
 
-    public getMissedBalloons() : number{
+
+    public getNormalScore(): number {
+        return this.normalScore;
+    }
+
+   
+    public setTotalGiftCount(value: number): void {
+        this.totalGiftCount = value;
+    }
+
+    public getTotalGiftCount(): number {
+        return this.totalGiftCount;
+    }
+
+    public setTotalCurrentDayGiftCount(value: number): void {
+        this.currentDayGiftCount = value;
+    }
+
+    public getTotalCurrentDayGiftCount(): number {
+        return this.currentDayGiftCount;
+    }
+
+    public setMissedBalloons(value: number,isOnlySet ?: boolean): void {
+        if(isOnlySet){
+            this.missedBalloons = value;
+        }else{
+            this.missedBalloons += value;
+        }
+    }
+
+
+    public getMissedBalloons(): number {
         return this.missedBalloons;
     }
 
-    public setTotalScore(value : number) :void{
+    public setTimer(value: number): void {
+        this.timer = value;
+    }
+
+    public setbrokenCase(value : boolean) :void{
+        this.isBrokenCase = value;
+    }
+
+    public getbrokenCase() : boolean{
+        return this.isBrokenCase;
+    }
+
+
+    public getTimer(): number {
+        return this.timer;
+    }
+
+    public setGameOver(value: boolean) {
+        this.gameOver = value;
+    }
+
+
+
+    public getGameOver(): boolean {
+        return this.gameOver;
+    }
+
+    public setTotalScore(value: number): void {
         this.totalscore = value;
     }
 
-    public getTotalScore() : number{
+    public getTotalScore(): number {
         return this.totalscore;
     }
 
-    public setLevelsNo(value : number) :void{
-        this.level += value;
+    public setCurrentScore(value: number): void {
+        this.currentscore = value;
     }
 
-    public getLevelsNo() : number{
+    public getCurrentScore(): number {
+        return this.currentscore;
+    }
+
+    public setLevelsNo(value: number): void {
+        this.getFirstGiftRealsed = false;
+        this.level = value;
+    }
+
+    public getLevelsNo(): number {
         return this.level;
     }
 
-    generateTask() : string{
-       this.currentSubTaskIndex = Math.floor(Math.random() * 2);
-       this.currentTaskIndex = Math.floor(Math.random() * 2);
-       
-       const tasktype : string = CommonConfig.taskType[this.currentTaskIndex];
-       const taskSubTask : string = CommonConfig.taskSubType[this.currentSubTaskIndex];
+    generateTask(): string {
+        this.currentSubTaskIndex = Math.floor(Math.random() * 2);
+        this.currentTaskIndex = Math.floor(Math.random() * 2);
 
-       if(tasktype === "ALPHABET"){
-         let randomAlphaBet : string = this.getRandomAlphabetBetweenEAndT();
-         let task : string = `Click On ${tasktype} ${taskSubTask} to ${randomAlphaBet}`;
-         this.randomValue = randomAlphaBet;
-         return task;
-       }else{
-         let randomNumber : number = Math.floor(Math.random() * (85 - 15 + 1)) + 15;
-         let task : string = `Click On ${tasktype} ${taskSubTask} to ${randomNumber}`;
-         this.randomValue = `${randomNumber}`;
-         return task;
-       }
+        const tasktype: string = CommonConfig.taskType[this.currentTaskIndex];
+        const taskSubTask: string = CommonConfig.taskSubType[this.currentSubTaskIndex];
+
+        if (tasktype === "ALPHABET") {
+            let randomAlphaBet: string = this.getRandomAlphabetBetweenEAndT();
+            let task: string = `Click On ${tasktype} ${taskSubTask} to ${randomAlphaBet}`;
+            this.randomValue = randomAlphaBet;
+            return task;
+        } else {
+            let randomNumber: number = Math.floor(Math.random() * (85 - 15 + 1)) + 15;
+            let task: string = `Click On ${tasktype} ${taskSubTask} to ${randomNumber}`;
+            this.randomValue = `${randomNumber}`;
+            return task;
+        }
     }
 
     private getRandomAlphabetBetweenEAndT(): string {
@@ -126,7 +286,7 @@ export class CommonConfig {
         const randomCharCode = Math.floor(Math.random() * (max - min + 1)) + min;
         return String.fromCharCode(randomCharCode);
     }
-    
+
 
 
 
