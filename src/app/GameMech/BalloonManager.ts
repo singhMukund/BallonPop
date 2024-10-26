@@ -21,11 +21,15 @@ import { LastBlastBalloon } from "../UI/LastBlastBalloon";
 import { ChainReactionBalloonPopup } from "../Popup/ChainReactionBalloonPopup";
 import { GiftPopUp } from "../Popup/GiftPopUp";
 import { CommonEvents } from "@/Common/CommonEvents";
-import { IBalloonData } from "@/Common/CommonInterface";
+import { IBalloonData, IBalloonTweenData } from "@/Common/CommonInterface";
+import { RainManager } from "./RainManager";
+import { SurpriseBigBalloon } from "./SurpriseBigBalloon";
+import { GameLockPopup } from "../Popup/GameLockPopup";
 
 export class BalloonManager {
     private ticker: Ticker;
     private balloons: Balloon[] = [];
+    private supriseBigBalloon: SurpriseBigBalloon[] = [];
     private score: number = 0;
     private spawnInterval: number;
     private lastSpawnTime: number = 0;
@@ -48,14 +52,16 @@ export class BalloonManager {
     private particleEmitterContainer !: ParticleEmitterContainer;
     private currentWeather: string = "";
     private balloonContainer !: Container;
-    private loadingScreenTest : LoadingScreenTest;
+    private loadingScreenTest: LoadingScreenTest;
     private bottomPanelBg !: Sprite;
     private playPauseBtn !: PlayPauseBtn;
     private resumePopUp !: ResumePopUp;
     private giftBtn !: GiftBtn;
     private lastBlastBalloon !: LastBlastBalloon;
-    private chainReactionBalloonPopup ! : ChainReactionBalloonPopup;
+    private chainReactionBalloonPopup !: ChainReactionBalloonPopup;
     private giftPopUp !: GiftPopUp;
+    private gameLockPopup !: GameLockPopup;
+    private rainManager !: RainManager;
 
     constructor(spawnInterval: number) {
         this.app = Game.the.app;
@@ -63,6 +69,8 @@ export class BalloonManager {
         this.ticker = new Ticker();
         this.balloonContainer = new Container();
         this.weatherbackround = new WeatherBackground();
+        this.rainManager = new RainManager(this.balloons); // Pass balloons
+        // this.app.stage.addChild(this.rainManager);
         // this.app.stage.addChild(this.weatherbackround);
         this.particleEmitterContainer = new ParticleEmitterContainer();
         this.app.stage.addChild(this.particleEmitterContainer);
@@ -94,6 +102,7 @@ export class BalloonManager {
         this.scoreCardContainer.setText();
         this.currentScoreCardContainer.setText();
         this.score = CommonConfig.the.getTotalScore();
+        this.gameLockPopup = new GameLockPopup();
         this.bottomPanelBg = new Sprite(Game.the.app.loader.resources['bottomPanelBg'].texture);
         this.app.stage.addChild(this.bottomPanelBg);
         this.app.stage.addChild(this.currentScoreCardContainer);
@@ -106,59 +115,94 @@ export class BalloonManager {
         this.app.stage.addChild(this.giftBtn);
         this.app.stage.addChild(this.giftPopUp);
         this.app.stage.addChild(this.chainReactionBalloonPopup);
-        if (CommonConfig.the.getLevelsNo() > 1) {
-            this.resumeGameForNextLevel();
-        }else{
-            this.loadingScreenTest.loadingAnimation();
+        this.app.stage.addChild(this.gameLockPopup);
+        CommonConfig.the.setIsHalloweenTheme(true);
+        Game.the.app.stage.emit(CommonEvents.CHANGE_THEME, true);
+        this.changeTheme(CommonConfig.the.getIsHalloweenTheme());
+        if (CommonConfig.the.getTotalMissedChance() >= 45) {
+            CommonConfig.the.setGameOver(true);
+            this.app.stage.emit('SHOW_GAME_LOCK_POPUP');
+        } else {
+            // this.resumeGameForNextLevel();
+            if (CommonConfig.the.getLevelsNo() > 1) {
+                this.resumeGameForNextLevel();
+            } else {
+                this.loadingScreenTest.loadingAnimation();
+            }
+            this.ticker.add(this.update, this);
+            this.ticker.start();
+            
         }
-        this.ticker.add(this.update, this);
-        this.ticker.start();
         this.setPosition();
+        // Game.the.app.stage.on(CommonEvents.CHANGE_THEME, this.changeTheme, this);
         this.app.stage.on("RESIZE_THE_APP", this.setPosition, this);
-        this.app.stage.on("PAUSE_BTN_CLICKED",this.pauseBtnClicked, this);
-        this.app.stage.on("PLAY_BTN_CLICKED",this.playBtnClicked, this);
-        this.app.stage.on("REMOVE_TICKER",this.onRemoveTicker, this);
+        this.app.stage.on("PAUSE_BTN_CLICKED", this.pauseBtnClicked, this);
+        this.app.stage.on("PLAY_BTN_CLICKED", this.playBtnClicked, this);
+        this.app.stage.on("REMOVE_TICKER", this.onRemoveTicker, this);
+        this.app.stage.on("END_GAME_AFTER_MAX_MISS", this.endGameAfterMaxMiss, this);
+        this.app.stage.on(CommonEvents.SPLIT_BALLOON, this.onSplitBalloon, this);
+    }
 
-        this.app.stage.on(CommonEvents.SPLIT_BALLOON,this.onSplitBalloon, this);
+    private endGameAfterMaxMiss() :void{
+        // this.endGame(true);
+        this.ticker && this.ticker.stop();
+        CommonConfig.the.setGameOver(true);
+        this.app.stage.emit('SHOW_GAME_LOCK_POPUP');
     }
 
 
 
-    private onRemoveTicker() : void{
-        this.ticker.stop(); 
+
+
+    private onRemoveTicker(): void {
+        this.ticker.stop();
     }
 
-    private pauseBtnClicked(isHidePopup ? : boolean) :void{
+    private pauseBtnClicked(isHidePopup?: boolean): void {
         CommonConfig.the.setPauseForNextLevel(true);
         CommonConfig.the.setGamePaused(true);
-        !isHidePopup  && this.resumePopUp.show();
+        !isHidePopup && this.resumePopUp.show();
+        // if(isHidePopup){
+        //     Game.the.app.stage.emit("ENABLE_DISABLE_GIFT_BTN",true);
+        // }else{
+        //     Game.the.app.stage.emit("ENABLE_DISABLE_GIFT_BTN",false);
+        // }
     }
 
-    private playBtnClicked() :void{
+    private playBtnClicked(): void {
         CommonConfig.the.setPauseForNextLevel(false);
         this.loadingScreenTest?.resumeTween();
         CommonConfig.the.setGamePaused(false);
         Game.the.app.stage.emit("RESUME_BALLOON_TWEENS");
         this.playPauseBtn.showPauseBtn();
+        Game.the.app.stage.emit("ENABLE_DISABLE_GIFT_BTN", true);
+    }
+
+    private changeTheme(isHalloween: boolean): void {
+        if (isHalloween) {
+            this.bottomPanelBg.texture = Game.the.app.loader.resources['bottomPanelBg_halloween'].texture;
+        } else {
+            this.bottomPanelBg.texture = Game.the.app.loader.resources['bottomPanelBg'].texture;
+        }
     }
 
     private setPosition(): void {
         // if (!this) {
         //     return
         // }
-       
-        let scaleX : number = 0;
+
+        let scaleX: number = 0;
         this.bottomPanelBg.width = 780;
         this.bottomPanelBg.height = 188;
-        if(window.innerHeight > window.innerWidth && this){
+        if (window.innerHeight > window.innerWidth && this) {
             scaleX = window.innerWidth / this.bottomPanelBg.width;
-            this.bottomPanelBg.scale.set(scaleX,0.5); 
-        }else{
+            this.bottomPanelBg.scale.set(scaleX, 0.5);
+        } else {
             scaleX = window.innerWidth / this.bottomPanelBg.width;
-            this.bottomPanelBg.scale.set(scaleX,0.5); 
+            this.bottomPanelBg.scale.set(scaleX, 0.5);
         }
-        this.bottomPanelBg.alpha =1;
-        this.bottomPanelBg.position.set((window.innerWidth - this.bottomPanelBg.width)/2 , (window.innerHeight - this.bottomPanelBg.height));
+        this.bottomPanelBg.alpha = 1;
+        this.bottomPanelBg.position.set((window.innerWidth - this.bottomPanelBg.width) / 2, (window.innerHeight - this.bottomPanelBg.height));
         this.setScorecardUIPosition();
         this.setCurrentScorecardUIPosition();
         this.setmissedCardUIPosition();
@@ -169,49 +213,49 @@ export class BalloonManager {
         this.loadingScreenTest.y = this.levelNo.textContainer.y + this.levelNo.textContainer.height + 22;
     }
 
-    private setCurrentScorecardUIPosition() :void{
-        let scale : number= 1;
-        let w = (window.innerWidth - 30)/3;
-        scale = w / this.currentScoreCardContainer.textContainer.width ;
-        if(this.currentScoreCardContainer.textContainer.width * 3 > (window.innerWidth - 30)){
+    private setCurrentScorecardUIPosition(): void {
+        let scale: number = 1;
+        let w = (window.innerWidth - 30) / 3;
+        scale = w / this.currentScoreCardContainer.textContainer.width;
+        if (this.currentScoreCardContainer.textContainer.width * 3 > (window.innerWidth - 30)) {
             this.currentScoreCardContainer.textContainer.scale.set(scale * 0.75);
-        }else{
+        } else {
             this.currentScoreCardContainer.textContainer.scale.set(1);
         }
-        this.currentScoreCardContainer.textContainer.position.set((window.innerWidth - this.currentScoreCardContainer.width)/2,this.scoreCardContainer.textContainer.y);    
+        this.currentScoreCardContainer.textContainer.position.set((window.innerWidth - this.currentScoreCardContainer.width) / 2, this.scoreCardContainer.textContainer.y);
     }
 
-    private setScorecardUIPosition() :void{
-        let scale : number= 1;
-        let w = (window.innerWidth - 30)/3;
-        scale = w / this.scoreCardContainer.textContainer.width ;
+    private setScorecardUIPosition(): void {
+        let scale: number = 1;
+        let w = (window.innerWidth - 30) / 3;
+        scale = w / this.scoreCardContainer.textContainer.width;
         // if(this.scoreCardContainer.textContainer.width * 3 > (window.innerWidth - 30)){
         //     this.scoreCardContainer.textContainer.scale.set(scale * 0.75);
         // }else{
         //     this.scoreCardContainer.textContainer.scale.set(1);
         // }
-         let x = (window.innerWidth)- 40;
-        this.scoreCardContainer.textContainer.position.set(x,this.bottomPanelBg.y + (this.bottomPanelBg.height - this.scoreCardContainer.textContainer.height));
+        let x = (window.innerWidth) - 40;
+        this.scoreCardContainer.textContainer.position.set(x, this.bottomPanelBg.y + (this.bottomPanelBg.height - this.scoreCardContainer.textContainer.height));
     }
 
-    private setmissedCardUIPosition() :void{
-        let scale : number= 1;
-        let w = (window.innerWidth - 30)/3;
-        scale = w / this.missedCountContainer.textContainer.width ;
-        if(this.missedCountContainer.textContainer.width * 3 > (window.innerWidth - 30)){
+    private setmissedCardUIPosition(): void {
+        let scale: number = 1;
+        let w = (window.innerWidth - 30) / 3;
+        scale = w / this.missedCountContainer.textContainer.width;
+        if (this.missedCountContainer.textContainer.width * 3 > (window.innerWidth - 30)) {
             this.missedCountContainer.textContainer.scale.set(scale * 0.75);
-        }else{
+        } else {
             this.missedCountContainer.textContainer.scale.set(1);
         }
         // let x = (window.innerWidth) - (this.textContainer.width + 10);
-        let y : number = this.scoreCardContainer.textContainer.y + this.scoreCardContainer.textContainer.height + 10
-        this.missedCountContainer.textContainer.position.set(3,this.scoreCardContainer.textContainer.y);
+        let y: number = this.scoreCardContainer.textContainer.y + this.scoreCardContainer.textContainer.height + 10
+        this.missedCountContainer.textContainer.position.set(3, this.scoreCardContainer.textContainer.y);
     }
 
-    private setPositionLevelUI() :void{
-        let scale : number= 1;
-        let w = (window.innerWidth -30)/3;
-        scale = w / this.levelNo.textContainer.width ;
+    private setPositionLevelUI(): void {
+        let scale: number = 1;
+        let w = (window.innerWidth - 30) / 3;
+        scale = w / this.levelNo.textContainer.width;
         // this.levelNo.textContainer.scale.set(scale * 0.65);
         // if(this.levelNo.textContainer.width * 3 > (window.innerWidth - 30)){
         //     this.levelNo.textContainer.scale.set(scale * 0.65);
@@ -222,20 +266,20 @@ export class BalloonManager {
         let x = (window.innerWidth) - (this.levelNo.textContainer.width + 10);
         x = 3;
         // x = 20;
-        this.levelNo.textContainer.position.set(x,(this.levelNo.textContainer.height * 0.7));
+        this.levelNo.textContainer.position.set(x, (this.levelNo.textContainer.height * 0.7));
     }
 
-    setPositionSoundBtn() :void{
+    setPositionSoundBtn(): void {
         this.soundBtn.scale.set(0.5);
-        this.soundBtn.position.set((window.innerWidth) - (this.soundBtn.width + 10),  this.levelNo.textContainer.height * 0.7);
+        this.soundBtn.position.set((window.innerWidth) - (this.soundBtn.width + 10), this.levelNo.textContainer.height * 0.7);
         this.playPauseBtn.scale.set(0.5);
-        this.playPauseBtn.position.set(this.soundBtn.x - this.playPauseBtn.width - 10,  this.levelNo.textContainer.height * 0.7);
+        this.playPauseBtn.position.set(this.soundBtn.x - this.playPauseBtn.width - 10, this.levelNo.textContainer.height * 0.7);
         this.giftBtn.scale.set(0.55);
-        this.giftBtn.position.set(this.playPauseBtn.x - this.giftBtn.width - 10,  this.levelNo.textContainer.height * 0.7);
+        this.giftBtn.position.set(this.playPauseBtn.x - this.giftBtn.width - 10, this.levelNo.textContainer.height * 0.7);
 
         this.lastBlastBalloon.scale.set(0.5);
         this.lastBlastBalloon.position.set((window.innerWidth) - (this.lastBlastBalloon.width + 10), this.giftBtn.y + this.giftBtn.height + 30);
-     }
+    }
 
     private update(delta: number) {
         if (CommonConfig.the.getPauseForNextLevel() === true) {
@@ -257,15 +301,15 @@ export class BalloonManager {
             }
 
         }
-       
+
         if (this.ticker.lastTime - this.lastSpawnTime > this.spawnInterval) {
-            !CommonConfig.the.getPauseForNextLevel() && this.spawnBalloon();
+            !CommonConfig.the.getIsBonusLevel() && !CommonConfig.the.getPauseForNextLevel() && this.spawnBalloon();
             this.lastSpawnTime = this.ticker.lastTime;
         }
-        
-        if(!CommonConfig.the.getPauseForNextLevel()){
+
+        if (!CommonConfig.the.getPauseForNextLevel()) {
             for (const balloon of this.balloons) {
-                if(!balloon.destroyed){
+                if (!balloon.destroyed) {
                     balloon.update(delta);
                     if (CommonConfig.the.getLevelsNo() > 2) {
                         if (this.currentWeather === 'left' || this.currentWeather === 'tornado') {
@@ -281,15 +325,28 @@ export class BalloonManager {
                     }
                 }
             }
-    
+            // this.rainManager.update(delta);    
             this.balloons = this.balloons.filter(balloon => !balloon.destroyed);
             // this.particleEmitterContainer.update(delta);
             if (CommonConfig.the.getMissedBalloons() <= 0) {
                 this.endGame(true);
                 CommonConfig.the.setGameOver(true);
-            }    
+            }
         }
-       
+
+        if (!CommonConfig.the.getPauseForNextLevel() && CommonConfig.the.getIsBonusLevel()) {
+            for (const balloon of this.supriseBigBalloon) {
+                if (!balloon.destroyed) {
+                    balloon.update(delta);
+                }
+            }
+            this.supriseBigBalloon = this.supriseBigBalloon.filter(balloon => !balloon.destroyed);
+            if (CommonConfig.the.getMissedBalloons() <= 0) {
+                this.endGame(true);
+                CommonConfig.the.setGameOver(true);
+            }
+        }
+
         this.timerContainer.update(delta);
     }
 
@@ -304,11 +361,11 @@ export class BalloonManager {
         this.endGamePop.show(missed);
     }
 
-    private resumeGameForNextLevel(): void {
-        
-        CommonConfig.the.setGameOver(false);
+    private resumeGameForNextLevel(): void {    
+         CommonConfig.the.setGameOver(false);
+         CommonConfig.the.setPlayerElectricBalloon(false);
+        !CommonConfig.the.getbrokenCase() && CommonConfig.the.setLevelsNo(CommonConfig.the.getLevelsNo() + 1);
         this.levelNo.setText();
-        CommonConfig.the.setPlayerElectricBalloon(false);
         const weahther: string[] = ['left', 'right', 'tornado'];
         if (CommonConfig.the.getLevelsNo() > 2) {
             this.currentWeather = weahther[Math.floor(Math.random() * weahther.length)];
@@ -327,26 +384,26 @@ export class BalloonManager {
                 balloon.currentWeather = this.currentWeather;
             }
         }
-        if(CommonConfig.the.getbrokenCase()){
-            for(let i : number = 1;i <= CommonConfig.the.getLevelsNo() ;i++){
+        if (CommonConfig.the.getbrokenCase()) {
+            for (let i: number = 1; i <= CommonConfig.the.getLevelsNo(); i++) {
                 if (i <= 2) {
                     this.speed += 0.5;
-                } else if(i > 5){
+                } else if (i > 5) {
                     this.speed += 0.15;
-                }else{
+                } else {
                     this.speed += 0.35;
                 }
             }
-        }else{
+        } else {
             if (CommonConfig.the.getLevelsNo() <= 2) {
                 this.speed += 0.5;
-            } else if(CommonConfig.the.getLevelsNo() > 5){
+            } else if (CommonConfig.the.getLevelsNo() > 5) {
                 this.speed += 0.15;
-            }else{
+            } else {
                 this.speed += 0.35;
             }
         }
-        CommonConfig.the.setbrokenCase(false);       
+        CommonConfig.the.setbrokenCase(false);
         this.spawnInterval = this.spawnInterval - (100 * CommonConfig.the.getLevelsNo());
         if (this.spawnInterval < 500) {
             this.spawnInterval = 400;
@@ -355,11 +412,50 @@ export class BalloonManager {
         CommonConfig.the.setPauseForNextLevel(false);
         this.loadingScreenTest.loadingAnimation();
         Game.the.app.stage.emit("RESUME_BALLOON_TWEENS");
+        // CommonConfig.the.setIsBonusLevel(true);
+        CommonConfig.the.getIsBonusLevel() && this.spawnLargeBalloon();
     }
 
-    private onSplitBalloon(data : IBalloonData) :void{
-        const balloon: Balloon = new Balloon(data.points, data.speed, data);
-        balloon.position.set(data.x + 50, data.y - 30);
+    private onSplitBalloon(data: IBalloonData): void {
+        let tweenData: IBalloonTweenData = {
+            x: data.x + 50,
+            y: data.y - 50
+        }
+        let balloon: Balloon = new Balloon(data.points, data.speed, data, tweenData);
+        balloon.position.set(data.x, data.y);
+        this.balloonContainer.addChild(balloon);
+        this.balloons.push(balloon);
+        balloon.on('balloonClicked', this.onBalloonClicked, this);
+        balloon.on('balloonClickedAndUpdateMissedChance', this.onBalloonClickedUpdateMissedChance, this);
+
+        tweenData = {
+            x: data.x - 50,
+            y: data.y + 50
+        }
+        balloon = new Balloon(data.points, data.speed, data, tweenData);
+        balloon.position.set(data.x, data.y);
+        this.balloonContainer.addChild(balloon);
+        this.balloons.push(balloon);
+        balloon.on('balloonClicked', this.onBalloonClicked, this);
+        balloon.on('balloonClickedAndUpdateMissedChance', this.onBalloonClickedUpdateMissedChance, this);
+
+        tweenData = {
+            x: data.x + 50,
+            y: data.y + 50
+        }
+        balloon = new Balloon(data.points, data.speed, data, tweenData);
+        balloon.position.set(data.x, data.y);
+        this.balloonContainer.addChild(balloon);
+        this.balloons.push(balloon);
+        balloon.on('balloonClicked', this.onBalloonClicked, this);
+        balloon.on('balloonClickedAndUpdateMissedChance', this.onBalloonClickedUpdateMissedChance, this);
+
+        tweenData = {
+            x: data.x - 50,
+            y: data.y - 50
+        }
+        balloon = new Balloon(data.points, data.speed, data, tweenData);
+        balloon.position.set(data.x, data.y);
         this.balloonContainer.addChild(balloon);
         this.balloons.push(balloon);
         balloon.on('balloonClicked', this.onBalloonClicked, this);
@@ -382,6 +478,15 @@ export class BalloonManager {
         }
         this.balloonContainer.addChild(balloon);
         this.balloons.push(balloon);
+        balloon.on('balloonClicked', this.onBalloonClicked, this);
+        balloon.on('balloonClickedAndUpdateMissedChance', this.onBalloonClickedUpdateMissedChance, this);
+    }
+
+    private spawnLargeBalloon() {
+        const balloon: SurpriseBigBalloon = new SurpriseBigBalloon(10, 2);
+        balloon.position.set((window.innerWidth - balloon.width) / 2, window.innerHeight - balloon.height);
+        this.supriseBigBalloon.push(balloon);
+        this.balloonContainer.addChild(balloon);
         balloon.on('balloonClicked', this.onBalloonClicked, this);
         balloon.on('balloonClickedAndUpdateMissedChance', this.onBalloonClickedUpdateMissedChance, this);
     }

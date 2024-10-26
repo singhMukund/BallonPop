@@ -5,3 +5,8 @@ export interface IBalloonData {
     randomColor : string;
     points : number;
 }
+
+export interface IBalloonTweenData {
+    x : number;
+    y : number;
+}

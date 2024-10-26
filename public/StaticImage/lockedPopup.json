@@ -1,0 +1,26 @@
+{"frames": {
+	"Lock.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":0,"y":639,"w":87,"h":107},
+		"spriteSourceSize": {"x":23,"y":14,"w":136,"h":140},
+		"sourceSize": {"w":136,"h":140}
+	},
+	"gameLockBar.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":0,"y":503,"w":616,"h":134},
+		"spriteSourceSize": {"x":0,"y":0,"w":616,"h":134},
+		"sourceSize": {"w":616,"h":134}
+	},
+	"gameLocktext.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":0,"y":0,"w":1529,"h":501},
+		"spriteSourceSize": {"x":14,"y":1,"w":1560,"h":520},
+		"sourceSize": {"w":1560,"h":520}
+	}
+},
+"meta": {
+	"app": "ShoeBox",
+	"image": "lockedPopup.png",
+	"size": {"w":2048,"h":2048}
+}
+}

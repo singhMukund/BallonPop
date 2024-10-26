@@ -1,0 +1,50 @@
+{"frames": {
+	"PlayBtn_halloween.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":172,"y":758,"w":150,"h":136},
+		"spriteSourceSize": {"x":0,"y":0,"w":150,"h":136},
+		"sourceSize": {"w":150,"h":136}
+	},
+	"Pop_Up.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":0,"y":0,"w":732,"h":513},
+		"spriteSourceSize": {"x":3,"y":0,"w":738,"h":520},
+		"sourceSize": {"w":738,"h":520}
+	},
+	"add_button.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":0,"y":567,"w":290,"h":136},
+		"spriteSourceSize": {"x":1,"y":0,"w":291,"h":136},
+		"sourceSize": {"w":291,"h":136}
+	},
+	"game_over_text.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":0,"y":705,"w":252,"h":51},
+		"spriteSourceSize": {"x":0,"y":2,"w":252,"h":53},
+		"sourceSize": {"w":252,"h":53}
+	},
+	"game_paused_text.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":0,"y":515,"w":304,"h":50},
+		"spriteSourceSize": {"x":0,"y":2,"w":305,"h":52},
+		"sourceSize": {"w":305,"h":52}
+	},
+	"home_button.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":292,"y":567,"w":136,"h":136},
+		"spriteSourceSize": {"x":1,"y":0,"w":137,"h":136},
+		"sourceSize": {"w":137,"h":136}
+	},
+	"popup_vector.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":0,"y":758,"w":170,"h":200},
+		"spriteSourceSize": {"x":0,"y":0,"w":170,"h":200},
+		"sourceSize": {"w":170,"h":200}
+	}
+},
+"meta": {
+	"app": "ShoeBox",
+	"image": "popUp_halloween.png",
+	"size": {"w":1024,"h":1024}
+}
+}

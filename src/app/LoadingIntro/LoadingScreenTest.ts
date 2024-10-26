@@ -2,6 +2,7 @@ import { Container, Graphics, Sprite, Texture } from "pixi.js";
 import { Game } from "../game";
 import gsap from "gsap";
 import { CommonConfig } from "../../Common/CommonConfig";
+import { CommonEvents } from "@/Common/CommonEvents";
 
 export class LoadingScreenTest extends Container {
 
@@ -19,7 +20,16 @@ export class LoadingScreenTest extends Container {
         this.init();
         this.setPosition();
         Game.the.app.stage.on("RESIZE_THE_APP", this.setPosition, this);
+        Game.the.app.stage.on(CommonEvents.CHANGE_THEME, this.changeTheme, this);
         Game.the.app.stage.on("DESTROY_TEXTURE", this.destroyAfterGameRemoved, this);
+    }
+
+    private changeTheme(isHalloween : boolean) : void{
+        if(isHalloween){
+           this.TimeRemainingTextImg.texture = Game.the.app.loader.resources['uiPanel_halloween'].textures?.[`TimeRemainingTextImg.png`] as Texture;
+        }else{
+            this.TimeRemainingTextImg.texture = Game.the.app.loader.resources['uiPanel'].textures?.[`TimeRemainingTextImg.png`] as Texture;
+        }
     }
 
     private destroyAfterGameRemoved() :void{

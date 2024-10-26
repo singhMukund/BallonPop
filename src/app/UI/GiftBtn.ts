@@ -17,16 +17,17 @@ export class GiftBtn extends Container{
         Game.the.app.stage.on("PLAY_GIFT_SCORE", this.updateGiftText, this);
         Game.the.app.stage.on("ENABLE_DISABLE_GIFT_BTN", this.enableDisableGiftBtn, this);
         this.interactive = false;
-        this.alpha = 0.5;
+        this.alpha = 0.35;
+        this.enableDisableGiftBtn(true);
     }
 
     private enableDisableGiftBtn(isEnable : boolean) :void{
         if(CommonConfig.the.getTotalGiftCount() > 0){
             this.interactive = isEnable;
-            isEnable ? this.alpha = 1 : this.alpha = 0.5;
+            isEnable ? this.alpha = 1 : this.alpha = 0.35;
         }else{
             this.interactive = false;
-            this.alpha = 0.5;
+            this.alpha = 0.35;
         }
     }
 
@@ -64,6 +65,10 @@ export class GiftBtn extends Container{
 
     private updateGiftText() : void{
         CommonConfig.the.setTotalGiftCount(CommonConfig.the.getTotalGiftCount() + 1);
+        if(CommonConfig.the.getTotalGiftCount()){
+            this.interactive = true;
+            this.alpha = 0.5;
+        }
         this.totalGiftText.text = `${CommonConfig.the.getTotalGiftCount()}`;
         this.totalGiftText.position.set(this.totalGiftBg.x + (this.totalGiftBg.width - this.totalGiftText.width)/2, this.totalGiftBg.y + (this.totalGiftBg.height - this.totalGiftText.height)/2)
         Game.the.app.stage.emit("UPDATE_GIFT_POINTS_API");

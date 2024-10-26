@@ -1,0 +1,14 @@
+{"frames": {
+	"balloon_big.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":0,"y":0,"w":616,"h":924},
+		"spriteSourceSize": {"x":0,"y":0,"w":616,"h":924},
+		"sourceSize": {"w":616,"h":924}
+	}
+},
+"meta": {
+	"app": "ShoeBox",
+	"image": "bigBalloon.png",
+	"size": {"w":1024,"h":1024}
+}
+}

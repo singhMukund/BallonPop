@@ -17,7 +17,7 @@ export class GiftPopUp extends Container {
         Game.the.app.stage.on("RESIZE_THE_APP", this.setPosition, this);
         Game.the.app.stage.on("DESTROY_TEXTURE", this.destroy, this);
         Game.the.app.stage.on("SHOW_GIFT_POP_UP", this.show, this);
-        // this.popupBg.on('pointerdown', this.hide, this);
+        this.popupBg.on('pointerdown', this.hide, this);
         Game.the.app.stage.on("HIDE_GIFT_POP_UP", this.hide, this);
     }
 
@@ -46,7 +46,7 @@ export class GiftPopUp extends Container {
         let textTure: Texture = Game.the.app.loader.resources['GiftPopup'].textures?.[`GiftPopBg.png`] as Texture;
         this.textContanerBg = new Sprite(textTure);
         this.textContainer.addChild(this.textContanerBg);
-        this.textContanerBg.scale.set(1);
+        this.textContanerBg.scale.set(0.5);
         const style = new TextStyle({
             fontFamily: 'Helvetica',
             fontSize: 34,
@@ -87,16 +87,21 @@ export class GiftPopUp extends Container {
     }
 
     private show(): void {
-        if(this.visible === true){
+        if(this.visible === true && (CommonConfig.the.getIsLevelPopupOpen() || CommonConfig.the.getIsResumePopupOpen()) ){
             this.hide();
             return;
         }
-        // Game.the.app.stage.emit("PAUSE_BTN_CLICKED",true);
+        // !CommonConfig.the.getIsLevelPopupOpen() && Game.the.app.stage.emit("PAUSE_BTN_CLICKED",true);
         Game.the.app.stage.emit("STOP_BG_SOUND");
         this.visible = true;
-        this.popupBg.interactive = false;
+        // !CommonConfig.the.getIsLevelPopupOpen() && (this.popupBg.interactive = true);
         this.popupBg.alpha = 0;
-        // gsap.to(this.popupBg, { alpha: 1, duration: 0.45 });
+        if(!CommonConfig.the.getIsLevelPopupOpen() && !CommonConfig.the.getIsResumePopupOpen()){
+            Game.the.app.stage.emit("PAUSE_BTN_CLICKED",true);
+            this.popupBg.interactive = true;
+            gsap.to(this.popupBg, { alpha: 1, duration: 0.45 });
+        }
+        // !CommonConfig.the.getIsLevelPopupOpen() && gsap.to(this.popupBg, { alpha: 1, duration: 0.45 });
         this.text.text = `You have ${CommonConfig.the.getTotalGiftCount()} gift boxes.`
         gsap.to(this.textContainer, {
             y: (window.innerHeight - this.textContainer.height) + 60, duration: 0.5, onComplete: () => {
@@ -110,13 +115,17 @@ export class GiftPopUp extends Container {
     private hide(): void {
 
         this.popupBg.alpha = 0;
-        // Game.the.app.stage.emit("PAUSE_BTN_CLICKED",false);
+        if(!CommonConfig.the.getIsLevelPopupOpen() && !CommonConfig.the.getIsResumePopupOpen()){
+            Game.the.app.stage.emit("PLAY_BTN_CLICKED");
+        }
+        // !CommonConfig.the.getIsLevelPopupOpen() && Game.the.app.stage.emit("PLAY_BTN_CLICKED");
         gsap.to(this.textContainer, {
             y: (window.innerHeight + this.textContainer.height), duration: 0.5, onComplete: () => {
                 this.button.interactive = false;
                 this.button.buttonMode = false;
                 this.visible = false;
                 this.popupBg.interactive = false;
+                Game.the.app.stage.emit("PLAY_BG_SOUND");
             }
         });
     }

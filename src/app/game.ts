@@ -6,6 +6,7 @@ import { Background } from './Background/Background';
 import { sound } from '@pixi/sound';
 import { PlayBurstSound } from './Sound/PlayBurstSound';
 import { CommonEvents } from '@/Common/CommonEvents';
+import { LoaderScreen } from './LoadingIntro/Loading';
 // import { TelegramLoginParsing } from './TelegramLogin/TelegramLoginParsing';
 // import { TelegramLogInBtn } from './TelegramLogin/TelegramLogInBtn';
 
@@ -19,6 +20,9 @@ export class Game {
   background !: Background;
   private count: number = 0;
   private isLocaltesting: boolean = true;
+  private loaderScreen !: LoaderScreen;
+  private isStage: string = "test";//prod
+  // private stageUrl : string = ''
 
 
   static get the(): Game {
@@ -31,7 +35,7 @@ export class Game {
 
   constructor() {
     if (Game._the == null) Game._the = this;
-    
+
     this.app = new Application({
       // backgroundColor: 0x7F88FD,
       width: window.innerWidth,
@@ -52,85 +56,84 @@ export class Game {
     this.gameContainer = new Container();
     this.app.stage.addChild(this.gameContainer);
     this.loader = this.app.loader;
-    this.loadAssetsAndInitialize();
-    this.resize();
-    window.onresize = this.resize.bind(this);
-    window.addEventListener('beforeunload', (event) => {
-      // console.log('User is about to leave the page.');
-      // this.app.stage.emit("REMOVE_TICKER");
-      // window.removeEventListener('resize', this.resize);
-      // // Clean up resources or show a confirmation dialog
-      // // this.app.stage.emit("DESTROY_TEXTURE");
-      // // this.app.destroy();
-      // utils.clearTextureCache();
-      // 
+    const font1 = new FontFace('Creepster_Regular', 'url(./Font/Creepster_Regular.ttf)');
+    const font2 = new FontFace('BLOMBERG', 'url(./Font/BLOMBERG.otf)');
+    const font3 = new FontFace('helvetica_rounded_bold', 'url(./Font/helvetica_rounded_bold.otf)');
+
+    Promise.all([font1.load(), font2.load(), font3.load()]).then((loadedFonts) => {
+      // @ts-ignore: Suppress TypeScript error for add method
+      loadedFonts.forEach(font => document.fonts.add(font));
+      this.loadPreloadAssets();
+      window.addEventListener('beforeunload', (event) => {
+
+      });
+    })
+
+  }
+
+  private loadPreloadAssets(): void {
+    this.loader.add('game_bg_halloween', './StaticImage/bg_Img_halloween.png');
 
 
+    const loadAssets = () => {
+      return new Promise<void>((resolve, reject) => {
+        this.loader.load(() => {
+          resolve();
+        });
+        // @ts-ignore
+        this.loader.onError.add((error) => {
+          console.error("Error loading assets:", error);
+          reject(error);
+        });
+      });
+    };
 
-      // clearInterval(myInterval);
-      // clearTimeout(myTimeout);
+    loadAssets().then(() => {
+      new CommonEvents();
+      new CommonConfig();
+      this.background = new Background();
+      this.gameContainer.addChild(this.background);
+      this.loaderScreen = new LoaderScreen();
+      this.gameContainer.addChild(this.loaderScreen);
+      this.resize();
+      window.onresize = this.resize.bind(this);
+      this.loadAssetsAndInitialize();
+    })
 
-      // Optionally display a confirmation dialog
-      // event.returnValue = 'Are you sure you want to leave?';
-    });
   }
 
   private async loadImages() {
-    if (utils.TextureCache['game_bg']) {
-      const cachedTexture = PIXI.utils.TextureCache['game_bg'];
-      cachedTexture.destroy(true);
-      this.loader.add('game_bg', './StaticImage/bg_Img.png');
-    } else {
-      this.loader.add('game_bg', './StaticImage/bg_Img.png');
-    }
-    if (utils.TextureCache['balloons']) {
-      const cachedTexture = PIXI.utils.TextureCache['balloons'];
-      cachedTexture.destroy(true);
-      this.loader.add('balloons', './StaticImage/balloons.json');
-    } else {
-      this.loader.add('balloons', './StaticImage/balloons.json');
-    }
-    if (utils.TextureCache['uiPanel']) {
-      const cachedTexture = PIXI.utils.TextureCache['uiPanel'];
-      cachedTexture.destroy(true);
-      this.loader.add('uiPanel', './StaticImage/uiPanel.json');
-    } else {
-      this.loader.add('uiPanel', './StaticImage/uiPanel.json');
-    }
-    if (utils.TextureCache['bottomPanelBg']) {
-      const cachedTexture = PIXI.utils.TextureCache['bottomPanelBg'];
-      cachedTexture.destroy(true);
-      this.loader.add('bottomPanelBg', './StaticImage/Bottom_Card_bg.png');
-    } {
-      this.loader.add('bottomPanelBg', './StaticImage/Bottom_Card_bg.png');
-    }
-    if (utils.TextureCache['popUp']) {
-      const cachedTexture = PIXI.utils.TextureCache['popUp'];
-      cachedTexture.destroy(true);
-      this.loader.add('popUp', './StaticImage/popUp.json');
-    } else {
-      this.loader.add('popUp', './StaticImage/popUp.json');
-    }
-    if (utils.TextureCache['MultiColorBlast']) {
-      const cachedTexture = PIXI.utils.TextureCache['MultiColorBlast'];
-      cachedTexture.destroy(true);
-      this.loader.add('MultiColorBlast', './StaticImage/MultiColorBlast.json');
-    } else {
-      this.loader.add('MultiColorBlast', './StaticImage/MultiColorBlast.json');
-    }
-    if (utils.TextureCache['GiftPopup']) {
-      const cachedTexture = PIXI.utils.TextureCache['GiftPopup'];
-      cachedTexture.destroy(true);
-      this.loader.add('GiftPopup', './StaticImage/GiftPopup.json');
-    } else {
-      this.loader.add('GiftPopup', './StaticImage/GiftPopup.json');
-    }
+    this.loader.add('game_bg', './StaticImage/bg_Img.png');
+    this.loader.add('game_bg_dark', './StaticImage/DarkBg.png');
+    this.loader.add('balloons', './StaticImage/balloons.json');
+    this.loader.add('bigBalloon', './StaticImage/bigBalloon.json');
+    this.loader.add('bottomPanelBg', './StaticImage/Bottom_Card_bg.png');
+    this.loader.add('bottomPanelBgDark', './StaticImage/bottomBgDark.png');
+    this.loader.add('popUp', './StaticImage/popUp.json');
+    this.loader.add('MultiColorBlast', './StaticImage/MultiColorBlast.json');
+    this.loader.add('GiftPopup', './StaticImage/GiftPopup.json');
+    this.loader.add('raindrop', './StaticImage/raindrop.png');
+    this.loader.add('uiPanel', './StaticImage/uiPanel.json');
+    this.loader.add('lockedPopup', './StaticImage/lockedPopup.json');
+
+    //
+    // this.loader.add('game_bg_halloween', './StaticImage/bg_Img_halloween.png');
+    this.loader.add('bottomPanelBg_halloween', './StaticImage/Bottom_Card_bg_halloween.png');
+    this.loader.add('balloons_halloween', './StaticImage/halloween_balloon.json');
+    this.loader.add('uiPanel_halloween', './StaticImage/uiPanel_halloween.json');
+    this.loader.add('Halloween_burst', './StaticImage/Halloween_burst.json');
+    this.loader.add('popUp_halloween', './StaticImage/popUp_halloween.json');
+
+
+
     if (this.isIOS()) {
       sound.add('ballon_burst_sound', './audio/ballon_burst.m4a');
       sound.add('BgSound', './audio/bg_sound.m4a');
+      sound.add('BgSound_halloween', './audio/bg_halloween_sound.m4a');
     } else {
       sound.add('BgSound', './audio/bg_sound.ogg');
       sound.add('ballon_burst_sound', './audio/ballon_burst.ogg');
+      sound.add('BgSound_halloween', './audio/bg_halloween_sound.ogg');
     }
 
     // @ts-ignore
@@ -150,7 +153,6 @@ export class Game {
 
     const autoLogInUser = async () => {
       const authToken = this.getAuthToken(window.location.search);
-      const baseURL = 'https://bot.trikon.io/v1';
       const stageURL = 'https://devbot.trikon.io/v1';
       CommonConfig.the.setTaken(authToken);
 
@@ -187,9 +189,9 @@ export class Game {
           CommonConfig.the.setGameId(result.result.id);
           CommonConfig.the.setUserId(result.result.userId);
           CommonConfig.the.setTotalScore(result.result.point);
-          let highestLevel: number = Math.max(...result.result.gameScores.map((score: { level: any }) => Number(score.level)));
           if (result.result.gameScores.length) {
-            CommonConfig.the.setLevelsNo(highestLevel);
+            let highestLevel: number = Math.max(...result.result.gameScores.map((score: { level: any }) => Number(score.level)));
+            CommonConfig.the.setLevelsNo(highestLevel + 1);
           } else {
             CommonConfig.the.setLevelsNo(1);
           }
@@ -198,10 +200,13 @@ export class Game {
           } else {
             CommonConfig.the.setbrokenCase(false);
           }
-          if(result.result.countOfGift){
-             CommonConfig.the.setTotalGiftCount(result.result.countOfGift);
-          }else{
+          if (result.result.countOfGift) {
+            CommonConfig.the.setTotalGiftCount(result.result.countOfGift);
+          } else {
             CommonConfig.the.setTotalGiftCount(0);
+          }
+          if (result.result.dailyMissedChances) {
+            CommonConfig.the.setTotalMissedChance(result.result.dailyMissedChances);
           }
           CommonConfig.the.setMissedBalloons(15, true);
           // if (localStorage.getItem('missed_balloon_count') !== '0') {
@@ -220,8 +225,10 @@ export class Game {
       if (this.isLocaltesting) {
         Promise.all([loadAssets()])
           .then(() => {
+            // CommonConfig.the.setTotalMissedChance(46);
             // CommonConfig.the.setbrokenCase(true);
-            // CommonConfig.the.setLevelsNo(7);
+            // CommonConfig.the.setLevelsNo(11);
+            // CommonConfig.the.setTotalGiftCount(2);
             this.onLoadComplete();
           })
           .catch((error) => {
@@ -263,8 +270,6 @@ export class Game {
 
   private loadAssetsAndInitialize() {
     this.loadImages();
-    new CommonEvents();
-    new CommonConfig();
   }
 
   private getAuthToken(search: string): string {
@@ -278,10 +283,9 @@ export class Game {
       return
     }
     this.count++;
-    this.background = new Background();
-    this.gameContainer.addChild(this.background);
+    this.loaderScreen.hide();
     this.gameContainer.addChild(new PlayBurstSound());
-
+    Game.the.app.stage.emit("PLAY_BG_SOUND");
     // this.loadingContainer = new LoadingContainer();
     // this.app.stage.addChild(this.loadingContainer);
     // this.loadingContainer.startLoading();
@@ -289,6 +293,8 @@ export class Game {
     // this.app.stage.on("START_BUTTON_CLICKED", this.onStartButtonClicked, this)
     this.app.stage.on("UPDATE_SCORE", this.updateScore, this);
     this.app.stage.on("UPDATE_GIFT_POINTS_API", this.updateGiftPoint, this);
+    this.app.stage.on(CommonEvents.SENT_MISSED_CHANCE_REQUEST, this.updateMissedChance, this);
+
     this.onStartButtonClicked();
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
@@ -331,7 +337,7 @@ export class Game {
 
     const login = async () => {
 
-      // https://t.me/gt_city_bot/shortName?startapp=ravindra
+      // https://t.me/gt_city_bot/shortName?startapp=ravindra 
       // startapp can be read as telegram.initDataUnsafe.start_param;
 
       const data = {
@@ -435,7 +441,69 @@ export class Game {
       const result = await updateGift();
       console.log(result);
       if (result) {
-       
+
+      }
+    };
+
+    fetchData();
+  }
+
+  private updateMissedChance(): void {
+    if (this.isLocaltesting) {
+      // CommonConfig.the.setCurrentScore(0);
+      // Game.the.app.stage.emit("HIDE_LEVEL_POP_UP");
+      return;
+    }
+    const baseUrl = 'https://bot.trikon.io/v1';
+    const stageURL = 'https://devbot.trikon.io/v1';
+    const url = '/user/updateGiftCount'
+
+
+
+    const updateGift = async () => {
+      const data = {
+        "giftCount": "0",
+        "missedChances": 1,
+      };
+
+      try {
+        const response = await fetch(
+          `${stageURL}${url}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${CommonConfig.the.getTaken()}`
+            },
+            body: JSON.stringify(data),
+          }
+        );
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            // logOut();
+            throw new Error("Unauthorized");
+          }
+        }
+
+        const result = await response.json();
+
+        return result;
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    const fetchData = async () => {
+      const result = await updateGift();
+      console.log(result);
+      if (result) {
+        if (result.dailyMissedChances) {
+          CommonConfig.the.setTotalMissedChance(result.dailyMissedChances);
+          if (CommonConfig.the.getTotalMissedChance() >= 45) {
+            this.app.stage.emit("END_GAME_AFTER_MAX_MISS");
+          }
+        }
       }
     };
 

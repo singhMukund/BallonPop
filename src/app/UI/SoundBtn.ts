@@ -1,6 +1,7 @@
 import { Container, Graphics, Sprite, Text, TextStyle, Texture } from "pixi.js";
 import { CommonConfig } from "../../Common/CommonConfig";
 import { Game } from "../game";
+import { CommonEvents } from "@/Common/CommonEvents";
 
 export class SoundBtn extends Container{
     private soundOnBtn! : Sprite;
@@ -12,8 +13,19 @@ export class SoundBtn extends Container{
         // this.setPosition();
         // Game.the.app.stage.on("RESIZE_THE_APP", this.setPosition, this);
         this.on('pointerdown', this.onBtnClicked, this);
+        Game.the.app.stage.on(CommonEvents.CHANGE_THEME, this.changeTheme, this);
         Game.the.app.stage.on("DESTROY_TEXTURE", this.destroyAfterGameRemoved, this);
         this.interactive = true;
+    }
+
+    private changeTheme(isHalloween : boolean) : void{
+        if(isHalloween){
+           this.soundOnBtn.texture = Game.the.app.loader.resources['uiPanel_halloween'].textures?.[`sound_on_halloween.png`] as Texture;
+           this.soundOffBtn.texture = Game.the.app.loader.resources['uiPanel_halloween'].textures?.[`sound_off_halloween.png`] as Texture;
+        }else{
+            this.soundOnBtn.texture = Game.the.app.loader.resources['uiPanel'].textures?.[`sound_on.png`] as Texture;
+            this.soundOffBtn.texture = Game.the.app.loader.resources['uiPanel'].textures?.[`sound_off.png`] as Texture;
+        }
     }
 
     private onBtnClicked() :void{

@@ -3,7 +3,7 @@ import { Game } from "../game";
 import { CommonConfig } from "../../Common/CommonConfig";
 import gsap from "gsap";
 import { CommonEvents } from "@/Common/CommonEvents";
-import { IBalloonData } from "@/Common/CommonInterface";
+import { IBalloonData, IBalloonTweenData } from "@/Common/CommonInterface";
 // import { sound } from "@pixi/sound";
 
 export class Balloon extends Container {
@@ -33,22 +33,33 @@ export class Balloon extends Container {
     private timeTween!: gsap.core.Tween;
     private _textureString : string ="";
     private _balloonClicked : boolean = false;
+    private data : IBalloonData | null ;
 
 
 
-    constructor(points: number, speed: number , data ? : IBalloonData) {
+    constructor(points: number, speed: number , data ? : IBalloonData ,tweenPos ?: IBalloonTweenData) {
         super();
         this._points = points;
         this._speed = speed;
         this.initBalloon();
+        this.data = data ? data : null;
         this.setPosition();
         Game.the.app.stage.on("RESIZE_THE_APP", this.setPosition, this);
         Game.the.app.stage.on("RESUME_BALLOON_TWEENS", this.resumeBalloonTween, this);
         Game.the.app.stage.on("DESTROY_TEXTURE", this.destroyAfterGameRemoved, this);
-        if (CommonConfig.the.getLevelsNo() > 10) {
+        if ((CommonConfig.the.getLevelsNo() > 10)) {
             this.startXTween();
         }
+        tweenPos && this.initialXYTween(tweenPos);
         // this.startXTween();
+    }
+
+    private initialXYTween(tweenPos: IBalloonTweenData) :void{
+        gsap.to(this, {
+            x : tweenPos?.x,
+            y: tweenPos?.y, 
+            duration: 0.5
+        });
     }
 
     private destroyAfterGameRemoved(): void {
@@ -95,7 +106,19 @@ export class Balloon extends Container {
             return
         }
         if (!this._destroyed_ && (window.innerHeight > window.innerWidth || !CommonConfig.the.isDesktop()) && this && this.balloon) {
-            this.scale.set(1.6);
+            if(this._textureString.includes('halloween_balloon_')){
+                if(this.data === null){
+                    this.scale.set(1);
+                }else{
+                    this.scale.set(1);
+                }
+            }else{
+                if(this.data === null){
+                    this.scale.set(1.6);
+                }else{
+                    this.scale.set(1.4); 
+                }
+            }  
         }
     }
 
@@ -161,8 +184,22 @@ export class Balloon extends Container {
         this.ballonAndAnimContainer = new Container();
         this.addChild(this.ballonAndAnimContainer);
         this.randomColorCode = CommonConfig.the.getRandomBalloon();
-        this._textureString = this.randomColorCode === 'timeLimitedBalloon' ? `balloon_orange` : `balloon_${this.randomColorCode}`;
-        let textTure: Texture = Game.the.app.loader.resources['balloons'].textures?.[`${this._textureString}.png`] as Texture;
+        if(this.randomColorCode === 'timeLimitedBalloon'){
+            this._textureString = 'balloon_orange';
+        }else if(this.randomColorCode.includes('halloween_balloon_')){
+            this._textureString = this.randomColorCode;
+        }else if(this.randomColorCode === 'golden' && CommonConfig.the.getIsHalloweenTheme()){
+            this._textureString = `balloon_golden`
+        }else{
+            this._textureString =  `balloon_${this.randomColorCode}`
+        }
+        // this._textureString = this.randomColorCode === 'timeLimitedBalloon' ? `balloon_orange` : `balloon_${this.randomColorCode}`;
+        let textTure: Texture;
+        if(this._textureString.includes('halloween_balloon_')){
+            textTure = Game.the.app.loader.resources['balloons_halloween'].textures?.[`${this._textureString}.png`] as Texture;
+        } else{
+            textTure = Game.the.app.loader.resources['balloons'].textures?.[`${this._textureString}.png`] as Texture;
+        } 
         this.balloon = new Sprite(textTure);
         this.ballonAndAnimContainer.addChild(this.balloon);
         this.balloon.scale.set(0.5);
@@ -178,13 +215,22 @@ export class Balloon extends Container {
         this.interactive = true;
         this.buttonMode = true;
 
-        const fontStyle = new TextStyle({
+        let fontStyle = new TextStyle({
             fontFamily: 'Helvetica',
             fontSize: 18,
-            fill: 'black',
+            fill: 'white',
             align: 'center',
             fontWeight: "normal"
         });
+        if(this._textureString.includes('halloween_balloon_')){
+            fontStyle = new TextStyle({
+                fontFamily: 'Helvetica',
+                fontSize: 18,
+                fill: 'white',
+                align: 'center',
+                fontWeight: "normal"
+            });
+        }
         if (this.randomColorCode === "electric") {
             this._scoreText_ = new Text(`5 Missed Chance +`, fontStyle);
         } else if(this.randomColorCode === "brandedTrikon"){
@@ -215,9 +261,16 @@ export class Balloon extends Container {
 
     private createElectricAnim(): void {
         const frames: Texture[] = [];
-        for (let i = 103; i <= 127; i++) {
-            let textTure: Texture = Game.the.app.loader.resources['MultiColorBlast'].textures?.[`${i}.png`] as Texture;
-            frames.push(textTure);
+        if(this._textureString.includes('halloween_balloon_')){
+            for (let i = 0; i <= 35; i++) {
+                let textTure: Texture = Game.the.app.loader.resources['Halloween_burst'].textures?.[`${i}.png`] as Texture;
+                frames.push(textTure);
+            }
+        }else{
+            for (let i = 103; i <= 127; i++) {
+                let textTure: Texture = Game.the.app.loader.resources['MultiColorBlast'].textures?.[`${i}.png`] as Texture;
+                frames.push(textTure);
+            }
         }
         this.multiColorburstAnimation = new AnimatedSprite(frames);
         this.multiColorburstAnimation.animationSpeed = 0.8; // Adjust animation speed as needed
@@ -225,9 +278,6 @@ export class Balloon extends Container {
         this.multiColorburstAnimation.scale.set(1.2);
         this.multiColorburstAnimation.visible = false;
         // this.multiColorburstAnimation.play();
-        if (this.randomColorCode === "golden") {
-            this.ballonAndAnimContainer.addChild(this.multiColorburstAnimation);
-        }
         this.ballonAndAnimContainer.addChild(this.multiColorburstAnimation);
         this.multiColorburstAnimation.position.set(-this.multiColorburstAnimation.width / 3 + 5, -this.multiColorburstAnimation.height / 3 + 5);
     }
@@ -260,6 +310,9 @@ export class Balloon extends Container {
         } else {
             finalScore = 1.2
         }
+        if(this._textureString.includes('halloween_balloon_')){
+            finalScore = 1.2;
+        }
         gsap.to(this.scale, { x: finalScore, y: finalScore, duration: 0.5 });
         // sound.play('oops_Sound');
     }
@@ -267,26 +320,49 @@ export class Balloon extends Container {
     private destroyBalloonCalled(): void {
         this.calculatePoints();
         Game.the.app.stage.emit("UPDATE_LASTBALLOON",this._textureString);
-        if (this.randomColorCode === "electric") {
-            this._scoreText_.text = "5 Missed Chance +";
-        } else if(this.randomColorCode === "brandedTrikon"){
-            this._scoreText_.text = "Gift+";
-        }else {
-            this._scoreText_.text = `${this._points} +`;
+        if(this._textureString.includes('halloween_balloon_')){
+          if(!this._textureString.includes(CommonConfig.the.getLastTexture())){
+            CommonConfig.the.setNormalScore(10);
+          }
+        }else if(this._textureString !== CommonConfig.the.getLastTexture()){
+            CommonConfig.the.setNormalScore(10);
         }
-        if (this._points === -30) {
-            this._scoreText_.text = `${this._points}`;
+        if(this._textureString.includes('halloween_balloon_')){
+            if(this._textureString.includes('orange')){
+                CommonConfig.the.setLastTexture('orange');
+            }else if(this._textureString.includes('white')){
+                CommonConfig.the.setLastTexture('white');
+            }
+        }else{
+            CommonConfig.the.setLastTexture(this._textureString);
         }
-        if (this.randomColorCode === "electric") {
-            this.emit('balloonClickedAndUpdateMissedChance');
-        } else if(this.randomColorCode !== "brandedTrikon"){
-            this.emit('balloonClicked', this._points);
+        let isSplit : boolean = false;
+        if(isSplit){
+            this.splitBalloon();
+            gsap.to(this, {
+                alpha: 0, duration: 0.25, onComplete: () => {
+                    this.completeDestroy.bind(this)
+                }
+            });
+        }else{
+            if (this.randomColorCode === "electric") {
+                this._scoreText_.text = "5 Missed Chance +";
+            } else if(this.randomColorCode === "brandedTrikon"){
+                this._scoreText_.text = "Gift+";
+            }else {
+                this._scoreText_.text = `${this._points} +`;
+            }
+            if (this._points === -30) {
+                this._scoreText_.text = `${this._points}`;
+            }
+            if (this.randomColorCode === "electric") {
+                this.emit('balloonClickedAndUpdateMissedChance');
+            } else if(this.randomColorCode !== "brandedTrikon"){
+                this.emit('balloonClicked', this._points);
+            }
+    
+            this.destroyBalloon();
         }
-
-        this.destroyBalloon();
-        // if (sound.exists('BurstSound')) {
-        //     sound.play('BurstSound');
-        // }
     }
 
     private destroyBalloon() {
@@ -300,9 +376,11 @@ export class Balloon extends Container {
         if(this.randomColorCode === "brandedTrikon"){
             Game.the.app.stage.emit("PLAY_GIFT_SCORE");
         }
+        this.timerLoader && (this.timerLoader.visible = false);
+        this.timeTween && (this.timeTween.kill())
         gsap.to(this.balloon, {
             alpha: 0, duration: 0.25, onComplete: () => {
-                this.upTween.bind(this);
+                // this.upTween.bind(this);
                 this.multiColorburstAnimation.visible = true;
                 this.multiColorburstAnimation.play();
             }
@@ -311,7 +389,13 @@ export class Balloon extends Container {
     }
 
     private calculatePoints(): void {
-        this._points = CommonConfig.the.getNormalScore();
+        if(this._textureString.includes('halloween_balloon_') && this._textureString.includes(CommonConfig.the.getLastTexture())){
+            this._points = CommonConfig.the.getNormalScore();
+        }else if(CommonConfig.the.getLastTexture() === this._textureString){
+            this._points =  CommonConfig.the.getNormalScore();
+        }else{
+            this._points = 10;
+        }
         if (this.randomColorCode === "golden") {
             let randomScore: number[] = [40, -30];
             this._points = randomScore[Math.floor(Math.random() * randomScore.length)];
@@ -376,6 +460,9 @@ export class Balloon extends Container {
             return;
         }
         if (!this._destroyed_) {
+            if(this.randomColorCode === "timeLimitedBalloon"){
+                this.y -= 2 * delta;
+            }
             this.y -= this._speed * delta;
             if (this.y + this.height < 0) {
                 CommonConfig.the.setMissedBalloons(-1);
@@ -427,6 +514,7 @@ export class Balloon extends Container {
     }
 
     loadingAnimation(): void {
+        this.timerLoader.visible = true;
         let x_pos = this.maskContainer.x;
         this.loadingBarFill_red.visible = false;
         this.loadingBarFill.visible = true;
@@ -434,6 +522,7 @@ export class Balloon extends Container {
         // this.maskContainer.x = this.maskContainer.x + this.maskContainer.width;
         this.timeTween = gsap.to(this.maskContainer, {
             x: this.maskContainer.x - this.maskContainer.width + 6,
+            delay : 0.5,
             duration: 2,
             onComplete: () => {
                 this.timeTween?.kill();

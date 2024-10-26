@@ -1,6 +1,7 @@
 import { Container, Graphics, Sprite, Text, TextStyle, Texture } from "pixi.js";
 import { CommonConfig } from "../../Common/CommonConfig";
 import { Game } from "../game";
+import { CommonEvents } from "@/Common/CommonEvents";
 
 export class Levelcard extends Container{
     private bg! : Sprite;
@@ -11,6 +12,7 @@ export class Levelcard extends Container{
         this.init();
         // this.setPosition();
         // Game.the.app.stage.on("RESIZE_THE_APP", this.setPosition, this);
+        Game.the.app.stage.on(CommonEvents.CHANGE_THEME, this.changeTheme, this);
         Game.the.app.stage.on("DESTROY_TEXTURE", this.destroyAfterGameRemoved, this);
     }
 
@@ -26,17 +28,6 @@ export class Levelcard extends Container{
         let textTure : Texture = Game.the.app.loader.resources['uiPanel'].textures?.[`levelBg.png`] as Texture; 
         this.bg = new Sprite(textTure);
         this.bg.scale.set(1.8);
-        // this.bg.beginFill(0x2786e8,1);
-        // this.bg.drawPolygon([-50,-45,
-        //     0,-65,
-        //     50,-45,
-        //     50,-5,
-        //     0,15,
-        //     -50,-5
-        //   ]);
-        // this.bg.endFill();
-        // this.bg.pivot.set(0.5,0.5);
-        // this.bg.position.set(this.bg.width, this.bg.height -10);
         this.textContainer.addChild(this.bg);
 
         const buttonStyle = new TextStyle({
@@ -51,6 +42,14 @@ export class Levelcard extends Container{
         this.levelTagText.x = (this.bg.width - this.levelTagText.width)/2;
         this.levelTagText.y = (this.bg.height - this.levelTagText.height)*0.3;
         this.textContainer.addChild(this.levelTagText);
+    }
+
+    private changeTheme(isHalloween : boolean) : void{
+        if(isHalloween){
+           this.bg.texture = Game.the.app.loader.resources['uiPanel_halloween'].textures?.[`levelBg_halloween.png`] as Texture;
+        }else{
+            this.bg.texture = Game.the.app.loader.resources['uiPanel'].textures?.[`levelBg.png`] as Texture;
+        }
     }
 
     setText() :void{

@@ -1,6 +1,7 @@
 import { Container, Graphics, Sprite, Text, TextStyle, Texture } from "pixi.js";
 import { CommonConfig } from "../../Common/CommonConfig";
 import { Game } from "../game";
+import { CommonEvents } from "@/Common/CommonEvents";
 
 export class CurrentScorecard extends Container{
     private bg! : Sprite;
@@ -12,6 +13,17 @@ export class CurrentScorecard extends Container{
         this.setPosition();
         // Game.the.app.stage.on("RESIZE_THE_APP", this.setPosition, this);
         Game.the.app.stage.on("DESTROY_TEXTURE", this.destroyAfterGameRemoved, this);
+        Game.the.app.stage.on(CommonEvents.CHANGE_THEME, this.changeTheme, this);
+    }
+
+    private changeTheme(isHalloween : boolean) : void{
+        if(isHalloween){
+           this.bg.texture = Game.the.app.loader.resources['uiPanel_halloween'].textures?.[`CurrentTXETextimg.png`] as Texture;
+           this.scoreText.style.fontFamily = 'Creepster_Regular';
+        }else{
+            this.bg.texture = Game.the.app.loader.resources['uiPanel'].textures?.[`CurrentTXETextimg.png`] as Texture;
+            this.scoreText.style.fontFamily = 'Blomberg';
+        }
     }
 
     private destroyAfterGameRemoved() :void{

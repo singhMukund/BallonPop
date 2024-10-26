@@ -1,6 +1,7 @@
 import { Container, Graphics, Sprite, Text, TextStyle, Texture } from "pixi.js";
 import { CommonConfig } from "../../Common/CommonConfig";
 import { Game } from "../game";
+import { CommonEvents } from "@/Common/CommonEvents";
 
 export class MissedCountContainer extends Container{
     private bg! : Sprite;
@@ -12,7 +13,18 @@ export class MissedCountContainer extends Container{
         this.setPosition();
         Game.the.app.stage.on("UPDATE_MISSED_COUNT", this.setText, this);
         Game.the.app.stage.on("DESTROY_TEXTURE", this.destroyAfterGameRemoved, this);
+        Game.the.app.stage.on(CommonEvents.CHANGE_THEME, this.changeTheme, this);
         // Game.the.app.stage.on("RESIZE_THE_APP", this.setPosition, this);
+    }
+
+    private changeTheme(isHalloween : boolean) : void{
+        if(isHalloween){
+           this.bg.texture = Game.the.app.loader.resources['uiPanel_halloween'].textures?.[`MissedBalloonsTextImg.png`] as Texture;
+           this.scoreText.style.fontFamily = 'Creepster_Regular';
+        }else{
+            this.bg.texture = Game.the.app.loader.resources['uiPanel'].textures?.[`MissedBalloonsTextImg.png`] as Texture;
+            this.scoreText.style.fontFamily = 'Blomberg';
+        }
     }
 
     private setPosition() :void{
@@ -53,8 +65,13 @@ export class MissedCountContainer extends Container{
     }
 
     setText() :void{
-        this.scoreText.text = `${CommonConfig.the.getMissedBalloons()}`;
+        if(CommonConfig.the.getMissedBalloons() < 0){
+            this.scoreText.text = `0`;
+        }else{
+            this.scoreText.text = `${CommonConfig.the.getMissedBalloons()}`;
+        }
         this.scoreText.x = (this.bg.width - this.scoreText.width)/2;
+        Game.the.app.stage.emit(CommonEvents.SENT_MISSED_CHANCE_REQUEST);
     }
 
     

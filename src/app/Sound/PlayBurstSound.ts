@@ -1,6 +1,7 @@
 import { sound, Sound } from "@pixi/sound";
 import { Game } from "../game";
 import { Container } from "pixi.js";
+import { CommonConfig } from "@/Common/CommonConfig";
 
 export class PlayBurstSound extends Container{
     constructor() {
@@ -9,7 +10,7 @@ export class PlayBurstSound extends Container{
     }
 
     private playSound(){
-        if(sound.exists('ballon_burst_sound')){
+        if(sound.exists('ballon_burst_sound') && !CommonConfig.the.getIsSoundMuted()){
             sound.play('ballon_burst_sound',{loop: false});
         }
     }

@@ -1,4 +1,5 @@
 import MobileDetect from "mobile-detect";
+import { IBalloonData } from "./CommonInterface";
 
 export class CommonConfig {
 
@@ -19,7 +20,8 @@ export class CommonConfig {
     public currentSubTaskIndex: number = 0;
     public currentTaskIndex: number = 0;
     public randomValue: string = "";
-    private colorCodes: string[] = ['green', 'orange', 'pink', 'golden', 'sea_green', 'yellow', "timeLimitedBalloon",'brandedTrikon'];
+    private colorCodes: string[] = ['green', 'orange', 'pink', 'golden', 'sea_green', 'yellow', "timeLimitedBalloon", 'brandedTrikon'];
+    private colorCodes_Halloween: string[] = ['02_white', '04_white', '05_white', '06_white', "07_orange", '08_orange','09_orange','10_orange','11_orange'];
     private balloonCount: number = 0;
     private gameId: string = "";
     private userId: string = "";
@@ -27,15 +29,18 @@ export class CommonConfig {
     private timer: number = 0;
     private isSoundMuted: boolean = false;
     private isGamePaused: boolean = false;
-    private isPlayerGetElectricBalloon : boolean = false;
-    private isBrokenCase : boolean = false;
-    private isLevelPopupOpen : boolean = false;
-    private normalScore : number = 10;
-    private totalGiftCount : number = 0;
-    private currentDayGiftCount : number = 0;
-    private getFirstGiftRealsed : boolean = false;
-
-
+    private isPlayerGetElectricBalloon: boolean = false;
+    private isBrokenCase: boolean = false;
+    private isLevelPopupOpen: boolean = false;
+    private normalScore: number = 10;
+    private totalGiftCount: number = 0;
+    private currentDayGiftCount: number = 0;
+    private getFirstGiftRealsed: boolean = false;
+    private lastTexture: string = "";
+    private isResumePopupOpen: boolean = false;
+    private isBonusLevel : boolean = false;
+    private isHalloweenTheme : boolean = false;
+    private totalDailyMissedChance : number = 0;
 
     static get the(): CommonConfig {
         if (!CommonConfig._the) {
@@ -74,27 +79,81 @@ export class CommonConfig {
                 return 'golden';
             }
         }
-        if(this.getLevelsNo() >= 12 && this.getLevelsNo() % 12 === 0 && this.getTotalGiftCount() < (Math.floor(this.getLevelsNo() / 12)) && this.getTotalGiftCount() < 4 && !this.getFirstGiftRealsed){
+        if (this.getLevelsNo() >= 12 && this.getLevelsNo() % 12 === 0 && this.getTotalGiftCount() < (Math.floor(this.getLevelsNo() / 12)) && this.getTotalGiftCount() < 4 && !this.getFirstGiftRealsed) {
+
             this.getFirstGiftRealsed = true;
             return 'brandedTrikon';
         }
+        // return 'electric';
+        // return 'timeLimitedBalloon';
         let nonRedColors = this.colorCodes.filter(color => color !== 'golden');
-        nonRedColors = nonRedColors.filter(color => color !== 'brandedTrikon')
+        nonRedColors = nonRedColors.filter(color => color !== 'brandedTrikon');
         this.getLevelsNo() < 10 && (nonRedColors = nonRedColors.filter(color => color !== 'timeLimitedBalloon'));
-        let randomIndex : number= Math.floor(Math.random() * nonRedColors.length);
-        if(this.getLevelsNo() >=5 && this.getLevelsNo() % 5 === 0 && this.getTimer() < 7 && !this.getPlayerElectricBalloon()){
+        let randomIndex: number = Math.floor(Math.random() * nonRedColors.length);
+        if(nonRedColors[randomIndex] === 'timeLimitedBalloon'){
+            return nonRedColors[randomIndex];
+        }
+        if(this.getIsHalloweenTheme()){
+            nonRedColors = this.colorCodes_Halloween;
+        }
+        randomIndex = Math.floor(Math.random() * nonRedColors.length);
+        if (this.getLevelsNo() >= 5 && this.getLevelsNo() % 5 === 0 && this.getTimer() < 7 && !this.getPlayerElectricBalloon()) {
             this.setPlayerElectricBalloon(true);
             return 'electric';
         }
-        return nonRedColors[randomIndex];
+        if(this.getIsHalloweenTheme()){
+            return `halloween_balloon_${nonRedColors[randomIndex]}`;
+        }else{
+            return nonRedColors[randomIndex];
+        }
     }
-    
+
     public setIsLevelPopupOpen(value: boolean): void {
         this.isLevelPopupOpen = value;
     }
 
     public getIsLevelPopupOpen(): boolean {
         return this.isLevelPopupOpen;
+    }
+ 
+    public setTotalMissedChance(value: number): void {
+        this.totalDailyMissedChance = value;
+    }
+
+    public getTotalMissedChance(): number {
+        return this.totalDailyMissedChance;
+    }
+
+    public setIsHalloweenTheme(value: boolean): void {
+        this.isHalloweenTheme = value;
+    }
+
+    public getIsHalloweenTheme(): boolean {
+        return this.isHalloweenTheme;
+    }
+
+    public setIsResumePopupOpen(value: boolean): void {
+        this.isResumePopupOpen = value;
+    }
+
+    public getIsResumePopupOpen(): boolean {
+        return this.isResumePopupOpen;
+    }
+
+    public setIsBonusLevel(value: boolean): void {
+        this.isBonusLevel = value;
+    }
+
+    public getIsBonusLevel(): boolean {
+        return this.isBonusLevel;
+    }
+
+    public setLastTexture(value: string): void {
+        this.lastTexture = value;
+    }
+
+    public getLastTexture(): string {
+        return this.lastTexture;
     }
 
     public setIsSoundMuted(value: boolean): void {
@@ -112,14 +171,14 @@ export class CommonConfig {
     public getPlayerElectricBalloon(): boolean {
         return this.isPlayerGetElectricBalloon;
     }
-    
-    private startingLevelOfDay : number = 0;
 
-    public setStartingLevelOfDay(value : number) : void{
+    private startingLevelOfDay: number = 0;
+
+    public setStartingLevelOfDay(value: number): void {
         this.startingLevelOfDay = value;
     }
 
-    public getStartingLevelOfDay() : number{
+    public getStartingLevelOfDay(): number {
         return this.startingLevelOfDay;
     }
 
@@ -170,6 +229,9 @@ export class CommonConfig {
     }
 
     public setNormalScore(value: number): void {
+        if(value === 13){
+            value = value;
+        }
         this.normalScore = value;
     }
 
@@ -178,7 +240,7 @@ export class CommonConfig {
         return this.normalScore;
     }
 
-   
+
     public setTotalGiftCount(value: number): void {
         this.totalGiftCount = value;
     }
@@ -195,10 +257,10 @@ export class CommonConfig {
         return this.currentDayGiftCount;
     }
 
-    public setMissedBalloons(value: number,isOnlySet ?: boolean): void {
-        if(isOnlySet){
+    public setMissedBalloons(value: number, isOnlySet?: boolean): void {
+        if (isOnlySet) {
             this.missedBalloons = value;
-        }else{
+        } else {
             this.missedBalloons += value;
         }
     }
@@ -212,11 +274,11 @@ export class CommonConfig {
         this.timer = value;
     }
 
-    public setbrokenCase(value : boolean) :void{
+    public setbrokenCase(value: boolean): void {
         this.isBrokenCase = value;
     }
 
-    public getbrokenCase() : boolean{
+    public getbrokenCase(): boolean {
         return this.isBrokenCase;
     }
 

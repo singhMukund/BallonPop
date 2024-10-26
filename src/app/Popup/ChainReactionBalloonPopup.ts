@@ -55,7 +55,8 @@ export class ChainReactionBalloonPopup extends Container {
     private show(texture:string,count:number): void {
         this.visible = true;
         texture = texture.replace('balloon_', '');
-        this.totalScore.text = `You’ve popped ${count} ${texture} balloons,\nkeep popping blue balloons to gain extra TXEs`;
+        this.totalScore.text = `You’ve popped ${count} ${texture} balloons,\nkeep popping ${texture} balloons to gain extra TXEs`;
+        this.totalScore.position.set((this.textContanerBg.width - this.totalScore.width)/2 -5,26);
         this.alpha = 1;
         gsap.to(this.popupContainer, { y: 60, duration: 0.5 ,onComplete :()=>{
             this.hide()

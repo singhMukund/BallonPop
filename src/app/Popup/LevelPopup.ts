@@ -2,6 +2,7 @@ import gsap from "gsap";
 import { Container, Graphics, Sprite, Text, TextStyle, Texture } from "pixi.js";
 import { CommonConfig } from "../../Common/CommonConfig";
 import { Game } from "../game";
+import { CommonEvents } from "@/Common/CommonEvents";
 
 export class LevelPopup extends Container {
     private popupBg !: Graphics;
@@ -14,12 +15,14 @@ export class LevelPopup extends Container {
     private textContainer !: Container;
     private _hideClicked : boolean = false;
     private _isGetResultValue : boolean = false;
+    private _popupVectorHalloween !: Sprite ;
     constructor() {
         super();
         this.init();
         this.setPosition();
         Game.the.app.stage.on("RESIZE_THE_APP", this.setPosition, this);
         Game.the.app.stage.on("DESTROY_TEXTURE", this.destroy, this);
+        Game.the.app.stage.on(CommonEvents.CHANGE_THEME, this.changeTheme, this);
         Game.the.app.stage.on("HIDE_LEVEL_POP_UP", this.getResultFromBackedn, this);
     }
 
@@ -46,15 +49,15 @@ export class LevelPopup extends Container {
 
         let textTure : Texture = Game.the.app.loader.resources['popUp'].textures?.[`pop_up.png`] as Texture; 
         this.textContanerBg = new Sprite(textTure);
-        // this.textContanerBg.beginFill(0x2786e8,1);
-        // this.textContanerBg.drawRoundedRect(0, 0, 550, 320,24);
-        // this.textContanerBg.endFill();
+        textTure = Game.the.app.loader.resources['popUp_halloween'].textures?.[`popup_vector.png`] as Texture; 
+        this._popupVectorHalloween = new Sprite(textTure);
+        this._popupVectorHalloween.position.set(this.textContanerBg.x + this.textContanerBg.width - (this._popupVectorHalloween.width/2) - 30, - this._popupVectorHalloween.height/2 + 20);
         this.popupContainer.addChild(this.textContanerBg);
-        // this.textContanerBg.anchor.set(0.5);
-        // this.textContanerBg.position.set(-this.textContanerBg.width/2,-this.textContanerBg.height/2);
-        this.textContanerBg.scale.set(1,0.9);
+        this.popupContainer.addChild(this._popupVectorHalloween);
+        this._popupVectorHalloween.visible = false;
+        this.textContanerBg.scale.set(1,1);
         const style = new TextStyle({
-            fontFamily: 'Arial',
+            fontFamily: 'helvetica_rounded_bold',
             fontSize: 36,
             fill: 'white',
             align: 'center'
@@ -76,11 +79,11 @@ export class LevelPopup extends Container {
         this.buttonBg.drawRoundedRect(0, 0, 160, 50, 7);
         this.buttonBg.endFill();
         const buttonStyle = new TextStyle({
-            fontFamily: 'Arial',
+            fontFamily: 'helvetica_rounded_bold',
             fontSize: 24,
             fill: "#327ee3",
             align: 'center',
-            fontWeight :'bold'
+            fontWeight :'normal'
         });
 
         this.button = new Text('Next Level', buttonStyle);
@@ -90,13 +93,13 @@ export class LevelPopup extends Container {
         this.button.y = this.buttonBg.y + (this.buttonBg.height - this.button.height)/2;
 
         const firstTextStyle = new TextStyle({
-            fontFamily: 'Arial',
-            fontSize: 24,
+            fontFamily: 'helvetica_rounded_bold',
+            fontSize: 48,
             fill: 'white',
             align: 'center',
-            fontWeight :'bold'
+            fontWeight :'normal'
         });
-        this.totalScore = new Text(`Your total score is ${CommonConfig.the.getTotalScore()}`, firstTextStyle);
+        this.totalScore = new Text(`Total Score : ${CommonConfig.the.getTotalScore()}`, firstTextStyle);
         this.totalScore.x = (this.textContanerBg.width - this.totalScore.width) / 2;
         this.totalScore.y = this.text.y - 70;
         this.popupContainer.addChild(this.totalScore);
@@ -116,19 +119,29 @@ export class LevelPopup extends Container {
         this.hideClicked();
     }
 
+    private changeTheme(isHalloween : boolean) : void{
+        if(isHalloween){
+            this.textContanerBg.texture = Game.the.app.loader.resources['popUp_halloween'].textures?.[`Pop_Up.png`] as Texture;
+            this._popupVectorHalloween.visible = true;
+        }else{
+            this.textContanerBg.texture = Game.the.app.loader.resources['popUp'].textures?.[`popUp.png`] as Texture;
+            this._popupVectorHalloween.visible = false;
+        }
+    }
+
     show(): void {
         if(this.visible){
             return
         }
         this.buttonBg.alpha = 0.4;
         Game.the.app.stage.emit("ENABLE_DISABLE_GIFT_BTN",true);
-        CommonConfig.the.setLevelsNo(CommonConfig.the.getLevelsNo() + 1);
         CommonConfig.the.setIsLevelPopupOpen(true);
         Game.the.app.stage.emit("UPDATE_SCORE");
         Game.the.app.stage.emit("STOP_BG_SOUND");
-        this.totalScore.text = `Your total score is ${CommonConfig.the.getTotalScore()}`;
-        this.text.text = `Ready For Next Ride Level ${CommonConfig.the.getLevelsNo()}`;
+        this.totalScore.text = `Total Score : ${CommonConfig.the.getTotalScore()}`;
+        this.text.text = `Ready For Next Ride Level ${CommonConfig.the.getLevelsNo() + 1}`;
         this.visible = true;
+        this.totalScore.x = (this.textContanerBg.width - this.totalScore.width) / 2;
         this.alpha = 0;
         gsap.to(this, { alpha: 1, duration: 0.5 });
         this.popupBg.interactive = true;

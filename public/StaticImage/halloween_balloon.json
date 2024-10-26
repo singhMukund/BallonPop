@@ -1,0 +1,68 @@
+{"frames": {
+	"halloween_balloon_02_white.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":0,"y":277,"w":214,"h":198},
+		"spriteSourceSize": {"x":33,"y":40,"w":280,"h":280},
+		"sourceSize": {"w":280,"h":280}
+	},
+	"halloween_balloon_03_white.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":216,"y":277,"w":148,"h":169},
+		"spriteSourceSize": {"x":21,"y":10,"w":190,"h":190},
+		"sourceSize": {"w":190,"h":190}
+	},
+	"halloween_balloon_04_white.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":180,"y":800,"w":150,"h":158},
+		"spriteSourceSize": {"x":0,"y":0,"w":150,"h":158},
+		"sourceSize": {"w":150,"h":158}
+	},
+	"halloween_balloon_05_white.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":180,"y":641,"w":154,"h":157},
+		"spriteSourceSize": {"x":32,"y":33,"w":214,"h":214},
+		"sourceSize": {"w":214,"h":214}
+	},
+	"halloween_balloon_06_white.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":262,"y":0,"w":132,"h":148},
+		"spriteSourceSize": {"x":0,"y":0,"w":132,"h":148},
+		"sourceSize": {"w":132,"h":148}
+	},
+	"halloween_balloon_07_orange.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":180,"y":477,"w":155,"h":162},
+		"spriteSourceSize": {"x":0,"y":0,"w":155,"h":170},
+		"sourceSize": {"w":155,"h":170}
+	},
+	"halloween_balloon_08_orange.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":0,"y":477,"w":178,"h":189},
+		"spriteSourceSize": {"x":0,"y":0,"w":178,"h":189},
+		"sourceSize": {"w":178,"h":189}
+	},
+	"halloween_balloon_09_orange.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":0,"y":668,"w":178,"h":202},
+		"spriteSourceSize": {"x":0,"y":0,"w":178,"h":202},
+		"sourceSize": {"w":178,"h":202}
+	},
+	"halloween_balloon_10_orange.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":0,"y":872,"w":141,"h":148},
+		"spriteSourceSize": {"x":43,"y":49,"w":228,"h":223},
+		"sourceSize": {"w":228,"h":223}
+	},
+	"halloween_balloon_11_orange.png":{
+		"rotated": false,"trimmed": true,
+		"frame": {"x":0,"y":0,"w":260,"h":275},
+		"spriteSourceSize": {"x":0,"y":0,"w":260,"h":275},
+		"sourceSize": {"w":260,"h":275}
+	}
+},
+"meta": {
+	"app": "ShoeBox",
+	"image": "halloween_balloon.png",
+	"size": {"w":1024,"h":1024}
+}
+}

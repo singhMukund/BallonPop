@@ -2,6 +2,7 @@ import gsap from "gsap";
 import { Container, Graphics, Sprite, Text, TextStyle, Texture } from "pixi.js";
 import { CommonConfig } from "../../Common/CommonConfig";
 import { Game } from "../game";
+import { CommonEvents } from "@/Common/CommonEvents";
 
 export class ResumePopUp extends Container {
     private popupBg !: Graphics;
@@ -10,12 +11,14 @@ export class ResumePopUp extends Container {
     private popupContainer !: Container;
     private textContanerBg !: Sprite;
     private textContainer !: Container;
+    private _popupVectorHalloween !: Sprite ;
     constructor() {
         super();
         this.init();
         this.setPosition();
         Game.the.app.stage.on("RESIZE_THE_APP", this.setPosition, this);
         Game.the.app.stage.on("DESTROY_TEXTURE", this.destroy, this);
+        Game.the.app.stage.on(CommonEvents.CHANGE_THEME, this.changeTheme, this);
     }
 
     destroy(options?: { children?: boolean; texture?: boolean; baseTexture?: boolean; } | undefined): void {
@@ -41,8 +44,13 @@ export class ResumePopUp extends Container {
 
         let textTure : Texture = Game.the.app.loader.resources['popUp'].textures?.[`pop_up.png`] as Texture; 
         this.textContanerBg = new Sprite(textTure);
+        textTure = Game.the.app.loader.resources['popUp_halloween'].textures?.[`popup_vector.png`] as Texture; 
+        this._popupVectorHalloween = new Sprite(textTure);
+        this._popupVectorHalloween.position.set(this.textContanerBg.x + this.textContanerBg.width - (this._popupVectorHalloween.width/2) - 30, - this._popupVectorHalloween.height/2 + 20);
         this.popupContainer.addChild(this.textContanerBg);
-        this.textContanerBg.scale.set(1,0.9);
+        this.popupContainer.addChild(this._popupVectorHalloween);
+        this._popupVectorHalloween.visible = false;
+        this.textContanerBg.scale.set(1,1);
         const style = new TextStyle({
             fontFamily: 'Helvetica',
             fontSize: 36,
@@ -58,7 +66,7 @@ export class ResumePopUp extends Container {
         this.button.y = this.textContanerBg.y + (this.textContanerBg.height - this.button.height)/2 + 60;
 
         const firstTextStyle = new TextStyle({
-            fontFamily: 'Helvetica',
+            fontFamily: 'helvetica_rounded_bold',
             fontSize: 48,
             fill: 'white',
             align: 'center',
@@ -78,6 +86,18 @@ export class ResumePopUp extends Container {
         this.visible = false;
     }
 
+    private changeTheme(isHalloween : boolean) : void{
+        if(isHalloween){
+            this.textContanerBg.texture = Game.the.app.loader.resources['popUp_halloween'].textures?.[`Pop_Up.png`] as Texture;
+            this.button.texture = Game.the.app.loader.resources['uiPanel_halloween'].textures?.[`State_Play_halloween.png`] as Texture;
+            this._popupVectorHalloween.visible = true;
+        }else{
+            this.textContanerBg.texture = Game.the.app.loader.resources['popUp'].textures?.[`popUp.png`] as Texture;
+            this.button.texture = Game.the.app.loader.resources['uiPanel'].textures?.[`State_Play.png`] as Texture; 
+            this._popupVectorHalloween.visible = false;
+        }
+    }
+
     private onButtonClick() {
         this.hide();
     }
@@ -86,8 +106,10 @@ export class ResumePopUp extends Container {
         if(this.visible){
             return
         }
+        CommonConfig.the.setIsResumePopupOpen(true);
         Game.the.app.stage.emit("STOP_BG_SOUND");
         this.totalScore.text = `Your total score is ${CommonConfig.the.getTotalScore()}`;
+        this.totalScore.x = (this.textContanerBg.width - this.totalScore.width) / 2;
         this.visible = true;
         this.alpha = 0;
         gsap.to(this, { alpha: 1, duration: 0.5 });
@@ -97,6 +119,8 @@ export class ResumePopUp extends Container {
 
     private hide(): void {
         this.alpha = 1;
+        CommonConfig.the.setIsResumePopupOpen(false);
+        Game.the.app.stage.emit("HIDE_GIFT_POP_UP");
         gsap.to(this, {
             alpha: 0, duration: 0.5, onComplete: () => {
                 this.visible = false;

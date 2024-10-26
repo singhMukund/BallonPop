@@ -18,16 +18,21 @@
     src: url('../public/Font/helvetica_rounded_bold.otf') format('opentype');
   }
 
+  @font-face {
+    font-family: 'Creepster_Regular';
+    src: url('../public/Font/Creepster_Regular.otf') format('truetype');
+
+  }
+
   body,
   html,
   div {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    font-family: 'Blomberg', 'Helvetica', sans-serif;
+    /* font-family: 'Blomberg', 'Helvetica', 'Creepster_Regular', sans-serif; */
   }
 </style>
-
 <body>
   <div id="pixi-container"></div>
   <script type="module" src="./index.ts"></script>
